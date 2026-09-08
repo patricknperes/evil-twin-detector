@@ -64,6 +64,9 @@ hiddenimports = (
     + collect_submodules(
         "sklearn"
     )
+    + collect_submodules(
+        "backend"
+    )
 )
 
 a = Analysis(

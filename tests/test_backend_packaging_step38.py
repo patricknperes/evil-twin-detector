@@ -240,3 +240,24 @@ def test_pyinstaller_and_electron_resource_contracts_exist():
         / "backend"
         / ".gitkeep"
     ).exists()
+
+def test_pyinstaller_spec_collects_backend_submodules():
+    root = resource_root()
+
+    spec = (
+        root
+        / "backend"
+        / "packaging"
+        / "evil-twin-backend.spec"
+    ).read_text(
+        encoding="utf-8"
+    )
+
+    compact_spec = "".join(
+        spec.split()
+    )
+
+    assert (
+        'collect_submodules("backend")'
+        in compact_spec
+    )
