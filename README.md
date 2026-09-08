@@ -1,5 +1,25 @@
 # Evil Twin Detector — TCC II
 
+> ## Estado científico atual
+>
+> O modelo desktop desta versão utiliza artefatos congelados e avaliação sem
+> refit ou recalibração silenciosa.
+>
+> A avaliação real disponível cobre o conjunto normal independente. Não existe,
+> nesta versão, ground truth verificado de um ataque Evil Twin real.
+>
+> Cenários sintéticos ou hipotéticos são utilizados exclusivamente como
+> **stress tests exploratórios**. Seus resultados devem ser interpretados como
+> sensibilidade a perturbações, nível de suspeita ou taxa de excedência do
+> threshold — e não como precision, recall, F1-score, accuracy, ROC-AUC ou
+> PR-AUC de detecção de Evil Twin real.
+>
+> As seções cronológicas abaixo documentam a evolução do projeto. Menções a
+> ataques controlados em etapas anteriores representam planos, protocolos ou
+> infraestrutura experimental e não comprovam que um ataque Evil Twin com
+> ground truth tenha sido executado.
+
+
 Versão acumulada até a **Fase 2 — Passo 7**.
 
 ## Normalizadores implementados
@@ -227,7 +247,7 @@ Ataques:
 ```text
 Mendeley Rogue sintético (teste auxiliar)
 +
-Evil Twin próprio/controlado futuramente
+Evil Twin próprio/controlado apenas em experimento futuro com ground truth verificado
 ```
 
 Durante a validação também foi corrigido o mapeamento do V2I:
@@ -275,7 +295,7 @@ Long-term
 
 ATAQUES
 Mendeley Rogue sintético (auxiliar)
-+ Evil Twin próprio/controlado (principal)
++ eventual Evil Twin próprio/controlado, somente com ground truth verificado
 ```
 
 A próxima fase é a **Fase 3 — EDA e análise individual dos datasets**.
@@ -304,7 +324,9 @@ python -m ml.evaluation.eda_step1
 
 Principais conclusões:
 
-- Mendeley permanece como a base principal ligada a Evil Twin.
+- Mendeley permanece como base pública relacionada ao contexto de Evil Twin e é
+  usada em experimentos auxiliares; não constitui ground truth da avaliação
+  final desktop.
 - BeaconInterval do Mendeley possui baixa variabilidade nos dados normais.
 - V2I 802.11n é o melhor perfil Beacon complementar.
 - Long-term será usado com amostragem/agrupamento por sessão.
@@ -835,7 +857,7 @@ cobertura contextual
 de:
 
 ```text
-recall entre amostras elegíveis
+taxa de detecção no cenário sintético entre amostras elegíveis
 ```
 
 A inspeção das árvores também confirma quais features foram efetivamente usadas.
@@ -868,7 +890,8 @@ Threshold validation P95:
 0.00060341
 ```
 
-O relatório separa cobertura contextual de recall elegível e inclui um
+O relatório separa cobertura contextual da taxa de detecção no cenário
+sintético elegível e inclui um
 diagnóstico explicativo de sensibilidade às features de evento que são
 constantes no treino normal.
 
@@ -938,7 +961,7 @@ O candidato operacional atual do Track E é:
 One-Class SVM + contextual_full_v1
 ```
 
-Essa escolha é provisória e precisa ser reavaliada com Evil Twin real.
+Essa escolha deve ser reavaliada futuramente caso exista ground truth verificado de Evil Twin real.
 
 Próximo passo: estudar features específicas de protocolo, começando por TSF.
 
@@ -1266,14 +1289,18 @@ artefatos congelados.
 
 ```text
 frozen scaler + frozen OCSVM + frozen threshold
-+ test_normal + controlled real attack
-→ final metrics
++ test_normal independente
++ eventual ataque real somente se houver ground truth verificado
+→ métricas compatíveis com o ground truth disponível
 ```
 
-A avaliação rejeita ataques sintéticos e não permite refit/recalibração.
+A avaliação final de métricas de ataque rejeita dados sintéticos e não permite
+refit/recalibração. Cenários sintéticos ou hipotéticos são avaliados
+separadamente apenas como stress tests exploratórios.
 
-Nenhuma métrica real foi produzida porque os artefatos/dados reais ainda não
-existem.
+A avaliação real disponível cobre o conjunto normal independente. Não há
+métricas de desempenho de ataque como precision, recall, F1-score, accuracy,
+ROC-AUC ou PR-AUC porque não existe ground truth verificado de Evil Twin real.
 
 
 ---
@@ -1648,9 +1675,11 @@ A execução real de `npm run e2e` permanece condicionada às dependências npm.
 
 Foi implementada a pipeline de geração do bundle final do TCC.
 
-Ela só gera tabelas, curvas, matriz de confusão e manifesto quando a avaliação
-final real estiver em `executed_fixed_artifacts`. Antes disso, o estado
-permanece bloqueado e nenhuma métrica final é fabricada.
+Ela gera o bundle final com resultados do conjunto normal independente,
+distribuições de score, stress tests hipotéticos e manifesto de
+reprodutibilidade. Sem ground truth verificado de Evil Twin real, não são
+geradas matriz de confusão, curvas ROC/PR ou métricas de ataque como
+precision, recall e F1-score.
 
 
 ---
