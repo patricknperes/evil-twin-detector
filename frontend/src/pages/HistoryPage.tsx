@@ -14,6 +14,10 @@ import {
   RefreshCw,
   ScanLine
 } from "lucide-react";
+import {
+  motion,
+  useReducedMotion
+} from "motion/react";
 
 import {
   AutoScanRefreshNotice
@@ -75,6 +79,7 @@ const EMPTY_PAGINATION = {
 
 export function HistoryPage() {
   const runtime = useRuntimeStatus();
+  const shouldReduceMotion = useReducedMotion();
 
   const [
     activeTab,
@@ -527,201 +532,149 @@ useEffect(() => {
         }
       />
 
-      <section className="grid grid-cols-4 gap-4">
+      <motion.section
+        initial={shouldReduceMotion ? false : {opacity: 0, y: 14}}
+        animate={{opacity: 1, y: 0}}
+        transition={{duration: 0.45, ease: [0.22, 1, 0.36, 1]}}
+        className="relative overflow-hidden rounded-[28px] bg-[#303778] px-6 py-6 text-white shadow-[0_24px_70px_rgba(48,55,120,0.18)] sm:px-7 lg:px-8"
+      >
+        <div className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full border border-white/10" />
+        <div className="pointer-events-none absolute -right-4 -top-10 size-44 rounded-full bg-[#4968e8]/[0.35] blur-3xl" />
+        <div className="pointer-events-none absolute bottom-[-5rem] left-[42%] size-48 rounded-full bg-[#2ac7a9]/[0.20] blur-3xl" />
+
+        <div className="relative grid gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.78fr)] lg:items-end">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.08] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/[0.72]">
+              <FileClock size={13} />
+              Trilha de auditoria local
+            </div>
+
+            <h2 className="mt-5 max-w-xl text-2xl font-semibold tracking-[-0.035em] sm:text-[2rem] sm:leading-[1.15]">
+              Revise o que foi observado sem expor os identificadores Wi-Fi originais.
+            </h2>
+
+            <p className="mt-3 max-w-xl text-sm leading-6 text-white/[0.62]">
+              Cada scan conecta observações, decisões e a versão científica que participou da inferência, preservando a rastreabilidade do produto.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2.5">
+            <HeroMetric label="Scans persistidos" value={String(scans.pagination.total)} />
+            <HeroMetric label="Registros na página" value={String(scans.pagination.returned)} />
+            <HeroMetric label="Modelos auditáveis" value={String(models.pagination.total)} />
+          </div>
+        </div>
+      </motion.section>
+
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           label="Scans"
           value={totals.scans}
-          icon={
-            <ScanLine size={17} />
-          }
+          icon={<ScanLine size={17} />}
+          accent="indigo"
         />
         <SummaryCard
           label="Observações nesta página"
           value={totals.observations}
-          icon={
-            <Database size={17} />
-          }
+          icon={<Database size={17} />}
+          accent="blue"
         />
         <SummaryCard
           label="Anomalias nesta página"
           value={totals.anomalies}
-          icon={
-            <Activity size={17} />
-          }
+          icon={<Activity size={17} />}
+          accent="rose"
         />
         <SummaryCard
           label="Histórico insuficiente"
           value={totals.insufficient}
-          icon={
-            <FileClock size={17} />
-          }
+          icon={<FileClock size={17} />}
+          accent="amber"
         />
       </section>
 
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+        <div className="rounded-2xl border border-rose-200/80 bg-rose-50/90 px-4 py-3.5 text-sm text-rose-700 shadow-sm">
           {error}
         </div>
       )}
 
       <section className="panel overflow-hidden">
-        <div className="flex items-center justify-between gap-4 border-b border-slate-100 px-5 py-4">
-          <div className="flex items-center gap-2 rounded-xl bg-slate-100 p-1">
-            <TabButton
-              active={
-                activeTab
-                === "scans"
-              }
-              label="Scans"
-              onClick={() => {
-                setActiveTab(
-                  "scans"
-                );
-                setSelectedDetection(
-                  null
-                );
-                setSelectedModel(
-                  null
-                );
-              }}
-            />
+        <div className="border-b border-[#edf0f7] bg-white px-4 py-4 sm:px-5">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8a91a8]">
+                Registros persistidos
+              </p>
+              <div className="mt-2 inline-flex items-center gap-1 rounded-2xl bg-[#f2f4fa] p-1">
+                <TabButton
+                  active={activeTab === "scans"}
+                  label="Scans"
+                  onClick={() => {
+                    setActiveTab("scans");
+                    setSelectedDetection(null);
+                    setSelectedModel(null);
+                  }}
+                />
+                <TabButton
+                  active={activeTab === "detections"}
+                  label="Detecções"
+                  onClick={() => {
+                    setActiveTab("detections");
+                    setSelectedScan(null);
+                  }}
+                />
+              </div>
+            </div>
 
-            <TabButton
-              active={
-                activeTab
-                === "detections"
-              }
-              label="Detecções"
-              onClick={() => {
-                setActiveTab(
-                  "detections"
-                );
-                setSelectedScan(
-                  null
-                );
-              }}
-            />
-          </div>
-
-          {activeTab
-            === "detections"
-            && (
+            {activeTab === "detections" && (
               <DetectionFilters
-                decisionFilter={
-                  decisionFilter
-                }
-                suspicionFilter={
-                  suspicionFilter
-                }
-                modelFilter={
-                  modelFilter
-                }
-                models={
-                  models.items
-                }
-                onDecisionChange={
-                  setDecisionFilter
-                }
-                onSuspicionChange={
-                  setSuspicionFilter
-                }
-                onModelChange={
-                  setModelFilter
-                }
+                decisionFilter={decisionFilter}
+                suspicionFilter={suspicionFilter}
+                modelFilter={modelFilter}
+                models={models.items}
+                onDecisionChange={setDecisionFilter}
+                onSuspicionChange={setSuspicionFilter}
+                onModelChange={setModelFilter}
               />
             )}
+          </div>
         </div>
 
-        <div className="grid min-h-[620px] grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
-          <div className="border-r border-slate-100">
+        <div className="grid min-h-[620px] xl:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)]">
+          <div className="min-w-0 border-b border-[#edf0f7] xl:border-b-0 xl:border-r">
             {loading ? (
               <LoadingHistory />
-            ) : activeTab
-              === "scans" ? (
-                <ScanList
-                  scans={scans}
-                  selectedScanId={
-                    selectedScan
-                      ?.scan
-                      .scan_id
-                    ?? null
-                  }
-                  onOpen={
-                    scan =>
-                      void openScan(
-                        scan
-                      )
-                  }
-                  onOffsetChange={
-                    offset =>
-                      void loadScans(
-                        offset
-                      )
-                  }
-                />
-              ) : (
-                <DetectionList
-                  detections={
-                    detections
-                  }
-                  selectedDetectionId={
-                    selectedDetection
-                      ?.detection
-                      .detection_id
-                    ?? null
-                  }
-                  onOpen={
-                    detection =>
-                      void openDetection(
-                        detection
-                        .detection_id
-                      )
-                  }
-                  onOffsetChange={
-                    offset =>
-                      void loadDetections(
-                        offset
-                      )
-                  }
-                />
-              )}
+            ) : activeTab === "scans" ? (
+              <ScanList
+                scans={scans}
+                selectedScanId={selectedScan?.scan.scan_id ?? null}
+                onOpen={scan => void openScan(scan)}
+                onOffsetChange={offset => void loadScans(offset)}
+              />
+            ) : (
+              <DetectionList
+                detections={detections}
+                selectedDetectionId={selectedDetection?.detection.detection_id ?? null}
+                onOpen={detection => void openDetection(detection.detection_id)}
+                onOffsetChange={offset => void loadDetections(offset)}
+              />
+            )}
           </div>
 
-          <aside className="bg-slate-50/60">
+          <aside className="min-w-0 bg-[#f8f9fd]">
             {detailLoading ? (
-              <div className="flex h-full min-h-[520px] items-center justify-center text-sm text-slate-500">
-                <LoaderCircle
-                  size={18}
-                  className="mr-2 animate-spin"
-                />
+              <div className="flex h-full min-h-[420px] items-center justify-center text-sm text-[#737b95]">
+                <LoaderCircle size={18} className="mr-2 animate-spin" />
                 Carregando detalhes…
               </div>
             ) : selectedScan ? (
-              <ScanDetailPanel
-                detail={
-                  selectedScan
-                }
-                onOpenDetection={
-                  id =>
-                    void openDetection(
-                      id
-                    )
-                }
-              />
+              <ScanDetailPanel detail={selectedScan} onOpenDetection={id => void openDetection(id)} />
             ) : selectedDetection ? (
               <DetectionDetailPanel
-                detail={
-                  selectedDetection
-                }
-                selectedModel={
-                  selectedModel
-                }
-                onOpenModel={
-                  id =>
-                    void openModel(
-                      id
-                    )
-                }
+                detail={selectedDetection}
+                selectedModel={selectedModel}
+                onOpenModel={id => void openModel(id)}
               />
             ) : (
               <EmptyDetail />
@@ -730,14 +683,25 @@ useEffect(() => {
         </div>
       </section>
 
-      <div className="rounded-xl border border-slate-200 bg-slate-100/70 p-4 text-xs leading-5 text-slate-500">
-        <strong className="font-semibold text-slate-700">
-          Privacidade:
-        </strong>{" "}
-        esta tela mostra hashes persistidos de SSID, BSSID e interface.
-        Os valores originais não são armazenados em claro; porém, hashes de
-        SSIDs previsíveis não devem ser tratados como anonimização absoluta.
+      <div className="rounded-[20px] border border-[#e7e9f2] bg-white/[0.08]0 px-4 py-4 text-xs leading-5 text-[#737b95] shadow-[0_8px_24px_rgba(34,39,76,0.04)] sm:px-5">
+        <strong className="font-semibold text-[#343a58]">Privacidade:</strong>{" "}
+        esta tela mostra hashes persistidos de SSID, BSSID e interface. Os valores originais não são armazenados em claro; porém, hashes de SSIDs previsíveis não devem ser tratados como anonimização absoluta.
       </div>
+    </div>
+  );
+}
+
+function HeroMetric({
+  label,
+  value
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.075] px-3.5 py-3 backdrop-blur-sm">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-white/[0.48]">{label}</p>
+      <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">{value}</p>
     </div>
   );
 }
@@ -756,10 +720,10 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={[
-        "rounded-lg px-4 py-2 text-sm font-semibold transition",
+        "rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200",
         active
-          ? "bg-white text-slate-950 shadow-sm"
-          : "text-slate-500 hover:text-slate-900"
+          ? "bg-white text-[#303778] shadow-[0_5px_16px_rgba(34,39,76,0.09)]"
+          : "text-[#7a829b] hover:bg-white/65 hover:text-[#343a58]"
       ].join(" ")}
     >
       {label}
@@ -767,30 +731,45 @@ function TabButton({
   );
 }
 
+type SummaryAccent = "indigo" | "blue" | "rose" | "amber";
+
+const summaryAccentClasses: Record<SummaryAccent, {icon: string; bar: string}> = {
+  indigo: {icon: "bg-[#eef0ff] text-[#414b9a]", bar: "bg-[#414b9a]"},
+  blue: {icon: "bg-[#edf3ff] text-[#4968e8]", bar: "bg-[#4968e8]"},
+  rose: {icon: "bg-rose-50 text-rose-600", bar: "bg-rose-500"},
+  amber: {icon: "bg-amber-50 text-amber-600", bar: "bg-amber-400"}
+};
+
 function SummaryCard({
   label,
   value,
-  icon
+  icon,
+  accent
 }: {
   label: string;
   value: number;
   icon: ReactNode;
+  accent: SummaryAccent;
 }) {
-  return (
-    <article className="panel p-4">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-          {label}
-        </p>
+  const palette = summaryAccentClasses[accent];
 
-        <span className="text-slate-400">
+  return (
+    <article className="panel relative overflow-hidden p-[18px]">
+      <div className={["absolute inset-x-0 top-0 h-0.5", palette.bar].join(" ")} />
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8a91a8]">
+            {label}
+          </p>
+          <p className="mt-3 text-[1.65rem] font-semibold leading-none tracking-[-0.04em] text-[#222742]">
+            {value}
+          </p>
+        </div>
+
+        <span className={["grid size-9 shrink-0 place-items-center rounded-xl", palette.icon].join(" ")}>
           {icon}
         </span>
       </div>
-
-      <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
-        {value}
-      </p>
     </article>
   );
 }
@@ -830,11 +809,10 @@ function DetectionFilters({
   ) => void;
 }) {
   return (
-    <div className="flex items-center gap-2">
-      <Filter
-        size={15}
-        className="text-slate-400"
-      />
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="grid size-9 place-items-center rounded-xl bg-[#f2f4fa] text-[#7a829b]">
+        <Filter size={15} />
+      </span>
 
       <select
         aria-label="Filtrar decisão"
@@ -844,7 +822,7 @@ function DetectionFilters({
             event.target.value as DetectionDecisionFilter
           )
         }
-        className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700 outline-none"
+        className="min-h-9 rounded-xl border border-[#e4e7f0] bg-white px-3 py-2 text-xs font-medium text-[#555d78] outline-none transition focus:border-[#9eabed]"
       >
         <option value="all">
           Todas as decisões
@@ -868,7 +846,7 @@ function DetectionFilters({
             event.target.value as "all" | SuspicionLevel
           )
         }
-        className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700 outline-none"
+        className="min-h-9 rounded-xl border border-[#e4e7f0] bg-white px-3 py-2 text-xs font-medium text-[#555d78] outline-none transition focus:border-[#9eabed]"
       >
         <option value="all">
           Toda suspeita
@@ -902,7 +880,7 @@ function DetectionFilters({
                 )
           )
         }
-        className="max-w-[200px] rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700 outline-none"
+        className="min-h-9 max-w-[210px] rounded-xl border border-[#e4e7f0] bg-white px-3 py-2 text-xs font-medium text-[#555d78] outline-none transition focus:border-[#9eabed]"
       >
         <option value="all">
           Todos os modelos
@@ -974,22 +952,22 @@ function ScanList({
                 )
               }
               className={[
-                "grid w-full grid-cols-[minmax(0,1fr)_95px_90px_90px_24px] items-center gap-3 px-5 py-4 text-left transition",
+                "relative grid w-full grid-cols-[minmax(0,1fr)_95px_90px_90px_24px] items-center gap-3 px-5 py-4 text-left transition-colors duration-200 max-[700px]:grid-cols-1 max-[700px]:gap-2 max-[700px]:px-4 max-[700px]:pr-12",
                 selectedScanId
                   === scan.scan_id
-                  ? "bg-slate-100"
-                  : "hover:bg-slate-50"
+                  ? "bg-[#f1f3fb]"
+                  : "hover:bg-[#fafbfe]"
               ].join(" ")}
             >
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900">
+                <p className="text-sm font-semibold text-[#2a2f4c]">
                   {formatDateTime(
                     scan
                       .observed_at_utc
                   )}
                 </p>
 
-                <p className="mt-1 truncate font-mono text-[11px] text-slate-400">
+                <p className="mt-1 truncate font-mono text-[11px] text-[#9aa0b4]">
                   {scan.scan_id}
                 </p>
               </div>
@@ -1020,7 +998,7 @@ function ScanList({
 
               <ArrowRight
                 size={15}
-                className="text-slate-300"
+                className="text-[#c3c8d8] max-[700px]:absolute max-[700px]:right-4 max-[700px]:top-5"
               />
             </button>
           )
@@ -1087,22 +1065,22 @@ function DetectionList({
                 )
               }
               className={[
-                "grid w-full grid-cols-[minmax(0,1fr)_170px_100px_24px] items-center gap-3 px-5 py-4 text-left transition",
+                "relative grid w-full grid-cols-[minmax(0,1fr)_170px_110px_24px] items-center gap-3 px-5 py-4 text-left transition-colors duration-200 max-[700px]:grid-cols-1 max-[700px]:gap-2 max-[700px]:px-4 max-[700px]:pr-12",
                 selectedDetectionId
                   === detection
                     .detection_id
-                  ? "bg-slate-100"
-                  : "hover:bg-slate-50"
+                  ? "bg-[#f1f3fb]"
+                  : "hover:bg-[#fafbfe]"
               ].join(" ")}
             >
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900">
+                <p className="text-sm font-semibold text-[#2a2f4c]">
                   Detecção #
                   {detection
                     .detection_id}
                 </p>
 
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-xs text-[#9aa0b4]">
                   {formatDateTime(
                     detection
                       .created_at_utc
@@ -1125,7 +1103,7 @@ function DetectionList({
 
               <ArrowRight
                 size={15}
-                className="text-slate-300"
+                className="text-[#c3c8d8] max-[700px]:absolute max-[700px]:right-4 max-[700px]:top-5"
               />
             </button>
           )
@@ -1158,19 +1136,19 @@ function ScanDetailPanel({
   const scan = detail.scan;
 
   return (
-    <div className="p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+    <div className="p-5 sm:p-6">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9299ae]">
         Scan selecionado
       </p>
 
-      <h2 className="mt-2 text-lg font-semibold text-slate-950">
+      <h2 className="mt-2 text-lg font-semibold tracking-[-0.025em] text-[#262b47]">
         {formatDateTime(
           scan
             .observed_at_utc
         )}
       </h2>
 
-      <p className="mt-1 break-all font-mono text-[11px] text-slate-400">
+      <p className="mt-1 break-all font-mono text-[11px] text-[#9aa0b4]">
         {scan.scan_id}
       </p>
 
@@ -1213,8 +1191,8 @@ function ScanDetailPanel({
         />
       </dl>
 
-      <div className="mt-6 border-t border-slate-200 pt-5">
-        <h3 className="text-sm font-semibold text-slate-900">
+      <div className="mt-6 border-t border-[#e7e9f2] pt-5">
+        <h3 className="text-sm font-semibold text-[#2a2f4c]">
           Observações anonimizadas
         </h3>
 
@@ -1259,10 +1237,10 @@ function ObservationCard({
   ) => void;
 }) {
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-4">
+    <article className="rounded-2xl border border-[#e7e9f2] bg-white p-4 shadow-[0_8px_22px_rgba(34,39,76,0.035)]">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-slate-900">
+          <p className="text-sm font-semibold text-[#2a2f4c]">
             Observação #
             {observation
               .observation_id}
@@ -1339,7 +1317,7 @@ function ObservationCard({
 
       {observation.features
         && (
-          <div className="mt-4 rounded-lg bg-slate-50 p-3">
+          <div className="mt-4 rounded-xl bg-[#f5f6fb] p-3">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
               desktop_candidate_v1
             </p>
@@ -1401,7 +1379,7 @@ function ObservationCard({
                   .detection_id
               )
             }
-            className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-slate-700 hover:text-slate-950"
+            className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-[#4968e8] transition hover:text-[#303778]"
           >
             Abrir detecção
             <ArrowRight
@@ -1435,20 +1413,20 @@ function DetectionDetailPanel({
     detail.observation;
 
   return (
-    <div className="p-5">
+    <div className="p-5 sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9299ae]">
             Detecção selecionada
           </p>
 
-          <h2 className="mt-2 text-lg font-semibold text-slate-950">
+          <h2 className="mt-2 text-lg font-semibold tracking-[-0.025em] text-[#262b47]">
             Detecção #
             {detection
               .detection_id}
           </h2>
 
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-[#9aa0b4]">
             {formatDateTime(
               detection
                 .created_at_utc
@@ -1497,8 +1475,8 @@ function DetectionDetailPanel({
         />
       </dl>
 
-      <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+      <div className="mt-5 rounded-2xl border border-[#e7e9f2] bg-white p-4 shadow-[0_8px_22px_rgba(34,39,76,0.035)]">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9299ae]">
           Observação associada
         </p>
 
@@ -1533,8 +1511,8 @@ function DetectionDetailPanel({
         </dl>
       </div>
 
-      <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+      <div className="mt-4 rounded-2xl border border-[#e7e9f2] bg-white p-4 shadow-[0_8px_22px_rgba(34,39,76,0.035)]">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9299ae]">
           Motivo
         </p>
 
@@ -1547,10 +1525,10 @@ function DetectionDetailPanel({
       {detail
         .model_version
         && (
-          <div className="mt-5 border-t border-slate-200 pt-5">
+          <div className="mt-5 border-t border-[#e7e9f2] pt-5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9299ae]">
                   Modelo
                 </p>
 
@@ -1597,15 +1575,15 @@ function ModelAudit({
     HistoryModelVersion;
 }) {
   return (
-    <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
+    <div className="mt-4 rounded-2xl border border-[#e7e9f2] bg-white p-4 shadow-[0_8px_22px_rgba(34,39,76,0.035)]">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-slate-900">
+          <p className="text-sm font-semibold text-[#2a2f4c]">
             {model
               .version_name}
           </p>
 
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-[#9aa0b4]">
             {model.algorithm}
             {" · "}
             {model
@@ -1691,13 +1669,13 @@ function DetailValue({
 }) {
   return (
     <div className="min-w-0">
-      <dt className="text-[11px] text-slate-400">
+      <dt className="text-[11px] text-[#9299ae]">
         {label}
       </dt>
 
       <dd
         className={[
-          "mt-1 break-all text-xs font-medium text-slate-700",
+          "mt-1 break-all text-xs font-medium text-[#4b526d]",
           mono
             ? "font-mono font-normal"
             : ""
@@ -1718,10 +1696,10 @@ function SmallValue({
 }) {
   return (
     <div>
-      <p className="text-[11px] text-slate-400">
+      <p className="text-[11px] text-[#9299ae]">
         {label}
       </p>
-      <p className="mt-1 text-sm font-semibold text-slate-700">
+      <p className="mt-1 text-sm font-semibold text-[#343a58]">
         {value}
       </p>
     </div>
@@ -1730,7 +1708,7 @@ function SmallValue({
 
 function LoadingHistory() {
   return (
-    <div className="flex min-h-[520px] items-center justify-center text-sm text-slate-500">
+    <div className="flex min-h-[520px] items-center justify-center text-sm text-[#737b95]">
       <LoaderCircle
         size={18}
         className="mr-2 animate-spin"
@@ -1748,11 +1726,11 @@ function EmptyList({
   description: string;
 }) {
   return (
-    <div className="p-10 text-center">
-      <p className="text-sm font-semibold text-slate-800">
+    <div className="p-10 text-center sm:p-14">
+      <p className="text-sm font-semibold text-[#343a58]">
         {title}
       </p>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#737b95]">
         {description}
       </p>
     </div>
@@ -1765,14 +1743,14 @@ function EmptyDetail() {
       <div>
         <FileClock
           size={26}
-          className="mx-auto text-slate-300"
+          className="mx-auto text-[#c8ccda]"
         />
 
-        <p className="mt-3 text-sm font-semibold text-slate-700">
+        <p className="mt-3 text-sm font-semibold text-[#424966]">
           Selecione um registro
         </p>
 
-        <p className="mx-auto mt-1 max-w-xs text-xs leading-5 text-slate-400">
+        <p className="mx-auto mt-1 max-w-xs text-xs leading-5 text-[#9299ae]">
           Os detalhes de auditoria aparecem aqui sem reconstruir
           SSID ou BSSID em claro.
         </p>

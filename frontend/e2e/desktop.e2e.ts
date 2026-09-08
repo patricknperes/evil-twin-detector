@@ -198,7 +198,10 @@ test(
 
     await expect(
       page.getByText(
-        "0/4 artefatos disponíveis"
+        "0/4 artefatos disponíveis",
+        {
+          exact: true
+        }
       )
     ).toBeVisible();
 

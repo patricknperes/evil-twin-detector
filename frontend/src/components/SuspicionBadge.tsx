@@ -23,10 +23,20 @@ const classes: Record<
   SuspicionLevel,
   string
 > = {
-  low: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  medium: "border-amber-200 bg-amber-50 text-amber-700",
-  high: "border-rose-200 bg-rose-50 text-rose-700",
-  unavailable: "border-slate-200 bg-slate-100 text-slate-600"
+  low: "border-emerald-200/80 bg-emerald-50/80 text-emerald-700 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)]",
+  medium: "border-amber-200/90 bg-amber-50/85 text-amber-700 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)]",
+  high: "border-rose-200/90 bg-rose-50/85 text-rose-700 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)]",
+  unavailable: "border-slate-200 bg-slate-100/80 text-slate-600 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)]"
+};
+
+const dots: Record<
+  SuspicionLevel,
+  string
+> = {
+  low: "bg-emerald-500",
+  medium: "bg-amber-500",
+  high: "bg-rose-500",
+  unavailable: "bg-slate-400"
 };
 
 const icons = {
@@ -46,11 +56,16 @@ export function SuspicionBadge({
   return (
     <span
       className={[
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold",
+        "inline-flex min-h-7 items-center gap-1.5 whitespace-nowrap rounded-lg border px-2.5 py-1 text-[11px] font-semibold leading-none",
         classes[level]
       ].join(" ")}
     >
-      <Icon size={13} />
+      <span className={`size-1.5 shrink-0 rounded-full ${dots[level]}`} />
+      <Icon
+        size={12}
+        strokeWidth={2}
+        aria-hidden="true"
+      />
       {labels[level]}
     </span>
   );
