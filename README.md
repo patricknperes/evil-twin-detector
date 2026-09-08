@@ -1,1723 +1,1802 @@
-# Evil Twin Detector — TCC II
+# Evil Twin Detector
 
-> ## Estado científico atual
->
-> O modelo desktop desta versão utiliza artefatos congelados e avaliação sem
-> refit ou recalibração silenciosa.
->
-> A avaliação real disponível cobre o conjunto normal independente. Não existe,
-> nesta versão, ground truth verificado de um ataque Evil Twin real.
->
-> Cenários sintéticos ou hipotéticos são utilizados exclusivamente como
-> **stress tests exploratórios**. Seus resultados devem ser interpretados como
-> sensibilidade a perturbações, nível de suspeita ou taxa de excedência do
-> threshold — e não como precision, recall, F1-score, accuracy, ROC-AUC ou
-> PR-AUC de detecção de Evil Twin real.
->
-> As seções cronológicas abaixo documentam a evolução do projeto. Menções a
-> ataques controlados em etapas anteriores representam planos, protocolos ou
-> infraestrutura experimental e não comprovam que um ataque Evil Twin com
-> ground truth tenha sido executado.
+Protótipo desktop de pesquisa para **detecção de anomalias em redes Wi-Fi**, com foco em identificar comportamentos potencialmente compatíveis com cenários de **Evil Twin**.
 
+O projeto combina:
 
-Versão acumulada até a **Fase 2 — Passo 7**.
+- coleta de redes Wi-Fi utilizando a API nativa do Windows;
+- backend local em FastAPI;
+- persistência SQLite;
+- Machine Learning para detecção de anomalias;
+- aplicação desktop com Electron;
+- frontend React + TypeScript;
+- pipeline científico reproduzível;
+- testes automatizados;
+- empacotamento e distribuição para Windows.
 
-## Normalizadores implementados
+> **Importante:** o sistema identifica **anomalias e níveis de suspeita**. Uma observação acima do threshold não constitui, isoladamente, confirmação de um ataque Evil Twin.
 
-1. **Mendeley Rogue AP**
-2. **Wi-Fi V2I**
-3. **Continuous Long-term Wi-Fi**
-4. **802.11 Management Frames from a Public Location (Station)**
+---
 
-Todos produzem o mesmo schema canônico.
+## Sumário
 
-## Dependências
+- [Visão geral](#visão-geral)
+- [Estado atual](#estado-atual)
+- [Objetivo](#objetivo)
+- [Funcionalidades](#funcionalidades)
+- [Arquitetura](#arquitetura)
+- [Fluxo de detecção](#fluxo-de-detecção)
+- [Machine Learning](#machine-learning)
+- [Artefatos científicos congelados](#artefatos-científicos-congelados)
+- [Metodologia científica](#metodologia-científica)
+- [Resultados e interpretação](#resultados-e-interpretação)
+- [Datasets](#datasets)
+- [Scanner Windows Native Wi-Fi](#scanner-windows-native-wi-fi)
+- [Backend](#backend)
+- [Frontend e Electron](#frontend-e-electron)
+- [Telas da aplicação](#telas-da-aplicação)
+- [Persistência](#persistência)
+- [Privacidade e segurança](#privacidade-e-segurança)
+- [Tecnologias](#tecnologias)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Instalação](#instalação)
+- [Ambiente de desenvolvimento](#ambiente-de-desenvolvimento)
+- [Testes e validação](#testes-e-validação)
+- [Build e distribuição](#build-e-distribuição)
+- [Reprodutibilidade](#reprodutibilidade)
+- [Limitações](#limitações)
+- [Trabalhos futuros](#trabalhos-futuros)
+- [Release atual](#release-atual)
 
-```bash
-pip install -r requirements-ml.txt
+---
+
+## Visão geral
+
+O **Evil Twin Detector** é uma aplicação desktop desenvolvida para Windows que observa redes Wi-Fi disponíveis, extrai características contextuais e utiliza um modelo de detecção de anomalias para indicar situações que merecem atenção.
+
+A aplicação foi desenvolvida como parte de um trabalho acadêmico de TCC e reúne componentes de:
+
+- segurança de redes;
+- análise de redes sem fio;
+- engenharia de software;
+- Machine Learning;
+- desenvolvimento desktop;
+- análise de dados;
+- validação científica.
+
+A arquitetura segue uma abordagem **local-first**.
+
+Scanner, backend, inferência, banco de dados e interface são executados no computador do usuário.
+
+Não existe dependência de um serviço externo para realizar a inferência do modelo.
+
+---
+
+## Estado atual
+
+Versão atual:
+
+```text
+v1.3.0
+```
+
+Estado validado do projeto:
+
+| Componente | Estado |
+|---|---|
+| Aplicação desktop Windows | Pronta |
+| Frontend React | Pronto |
+| Electron | Pronto |
+| Backend FastAPI | Pronto |
+| Scanner Native Wi-Fi | Implementado |
+| Banco SQLite | Pronto |
+| Migrations Alembic | Prontas |
+| Modelo One-Class SVM | Pronto |
+| Artefatos científicos | Congelados |
+| Scan manual | Pronto |
+| Scan automático | Pronto |
+| Histórico | Pronto |
+| Dashboard | Pronto |
+| Diagnósticos | Pronto |
+| Configurações | Prontas |
+| Instalador Windows | Pronto |
+| Testes Python | 235 passaram |
+| Testes frontend | 32 passaram |
+| E2E Electron | 6/6 passaram |
+| TypeScript typecheck | Passou |
+| Vite production build | Passou |
+| Auditoria de dependências de produção | 0 vulnerabilidades |
+| Final readiness | 17/17 READY |
+| Aplicação instalada | Validada em Windows |
+
+A versão `v1.3.0` foi:
+
+- compilada;
+- empacotada;
+- instalada;
+- executada;
+- validada no Windows.
+
+---
+
+## Objetivo
+
+O objetivo principal é investigar uma abordagem de **detecção de anomalias em redes Wi-Fi observáveis por um cliente Windows**.
+
+O sistema busca identificar mudanças contextuais relacionadas a uma rede conhecida.
+
+Entre elas:
+
+- um mesmo SSID aparecendo com outro BSSID;
+- mudança no padrão de segurança;
+- redução da força relativa da configuração de segurança;
+- aumento inesperado de BSSIDs associados ao mesmo SSID.
+
+Esses sinais não são tratados individualmente como prova de ataque.
+
+Eles são transformados em features utilizadas pelo detector de anomalias.
+
+O objetivo da aplicação é indicar situações que apresentam comportamento diferente da referência normal conhecida e que, portanto, podem justificar investigação adicional.
+
+---
+
+## Funcionalidades
+
+### Scan manual
+
+Permite iniciar uma varredura Wi-Fi diretamente pela interface.
+
+O fluxo inclui:
+
+```text
+scanner Windows
+      ↓
+normalização
+      ↓
+extração de features
+      ↓
+inferência
+      ↓
+persistência
+      ↓
+atualização da interface
 ```
 
 ---
 
-## Mendeley
+### Scan automático
 
-```bash
-python -m ml.preprocessing.normalize_mendeley --input data/external/mendeley_rogue_ap --output data/interim/mendeley
-```
+A aplicação possui um scheduler executado pelo processo principal do Electron.
 
-Saídas:
+O usuário pode configurar o comportamento do scan automático pela tela de configurações.
+
+Após uma execução automática, o Electron notifica o frontend por IPC para atualizar as telas relevantes sem exigir recarregamento completo da aplicação.
+
+---
+
+### Dashboard
+
+Apresenta uma visão consolidada do estado atual.
+
+Inclui informações como:
+
+- atividade recente;
+- quantidade de redes observadas;
+- níveis de suspeita;
+- estado do backend;
+- estado do scanner;
+- estado do modelo;
+- estado do scheduler.
+
+---
+
+### Redes
+
+Permite visualizar as redes observadas.
+
+A tela oferece:
+
+- resumo das observações;
+- filtros;
+- detalhes;
+- estado contextual;
+- nível de suspeita;
+- informações Wi-Fi disponíveis.
+
+---
+
+### Histórico
+
+As varreduras são persistidas localmente.
+
+A aplicação permite consultar scans anteriores sem depender apenas do estado atual do scanner.
+
+---
+
+### Modelo
+
+Apresenta o estado dos quatro elementos científicos necessários para a inferência:
+
+- referência normal;
+- StandardScaler;
+- modelo One-Class SVM;
+- threshold.
+
+A interface diferencia disponibilidade operacional de validade científica.
+
+---
+
+### Diagnósticos
+
+A aplicação possui uma área dedicada a informações operacionais.
+
+É possível gerar um bundle local de diagnóstico para suporte e troubleshooting.
+
+O bundle padrão evita incluir identificadores Wi-Fi individuais desnecessários.
+
+---
+
+### Configurações
+
+Permite ajustar parâmetros operacionais da aplicação, incluindo:
+
+- atualização da interface;
+- comportamento do scheduler;
+- scan automático.
+
+---
+
+## Arquitetura
+
+A arquitetura principal pode ser representada da seguinte forma:
 
 ```text
-mendeley_normal.parquet
-mendeley_attack.parquet
+┌──────────────────────────────────────────────┐
+│                Frontend React                │
+│                                              │
+│ Dashboard                                    │
+│ Scan                                         │
+│ Redes                                        │
+│ Histórico                                    │
+│ Modelo                                       │
+│ Diagnósticos                                 │
+│ Configurações                                │
+└───────────────────────┬──────────────────────┘
+                        │
+                        ▼
+┌──────────────────────────────────────────────┐
+│                   Electron                   │
+│                                              │
+│ main process                                 │
+│ preload                                      │
+│ IPC                                          │
+│ backend manager                              │
+│ auto-scan scheduler                          │
+└───────────────────────┬──────────────────────┘
+                        │
+                        ▼
+┌──────────────────────────────────────────────┐
+│                  FastAPI                     │
+│               127.0.0.1:8765                │
+│                                              │
+│ scanner                                      │
+│ inference                                    │
+│ dashboard                                    │
+│ history                                      │
+│ settings                                     │
+│ diagnostics                                  │
+│ persistence                                  │
+└───────────────┬───────────────────┬──────────┘
+                │                   │
+                ▼                   ▼
+        Windows Native Wi-Fi      SQLite
+             wlanapi.dll          Alembic
+                │
+                ▼
+        contextual features
+                │
+                ▼
+         StandardScaler
+                │
+                ▼
+         One-Class SVM
+                │
+                ▼
+            threshold
+```
+
+### Frontend
+
+Responsável por:
+
+- apresentação;
+- navegação;
+- filtros;
+- visualização dos resultados;
+- animações;
+- feedback de status;
+- interação com o usuário.
+
+### Electron
+
+Responsável por:
+
+- ciclo de vida da aplicação desktop;
+- preload;
+- IPC;
+- gerenciamento do backend local;
+- scheduler de scan automático;
+- integração com funções específicas do sistema operacional.
+
+### Backend
+
+Responsável por:
+
+- scanner;
+- inferência;
+- persistência;
+- dashboard;
+- histórico;
+- configurações;
+- diagnósticos;
+- estado dos artefatos científicos.
+
+### Windows Native Wi-Fi
+
+Responsável pela coleta das informações disponibilizadas pelo Windows sobre as redes observáveis.
+
+### Machine Learning
+
+Responsável por:
+
+- cálculo das features;
+- preprocessing;
+- inferência;
+- cálculo do anomaly score;
+- comparação com o threshold.
+
+---
+
+## Fluxo de detecção
+
+O fluxo principal é:
+
+```text
+Windows Native Wi-Fi
+        ↓
+scan das redes
+        ↓
+normalização
+        ↓
+referência normal
+        ↓
+extração das features
+        ↓
+StandardScaler
+        ↓
+One-Class SVM
+        ↓
+decision_function
+        ↓
+anomaly_score
+        ↓
+threshold
+        ↓
+nível de suspeita
+        ↓
+persistência
+        ↓
+frontend
+```
+
+A regra utilizada pelo runtime é:
+
+```text
+anomaly_score = -decision_function(X)
+
+anomalia = anomaly_score > threshold
+```
+
+Uma observação marcada como anômala deve ser interpretada como um **indicador de suspeita**, não como confirmação automática de Evil Twin.
+
+---
+
+## Machine Learning
+
+### Modelo utilizado no runtime
+
+O modelo de produção desktop atual é:
+
+```text
+One-Class Support Vector Machine
+One-Class SVM
+OCSVM
+```
+
+O One-Class SVM é utilizado como detector de anomalias treinado sobre observações consideradas normais.
+
+O objetivo é identificar observações que se afastem do comportamento representado pelo conjunto normal utilizado no treinamento.
+
+---
+
+### Features do modelo desktop
+
+O contrato científico congelado contém exatamente quatro features:
+
+```python
+DESKTOP_FEATURES = [
+    "ssid_bssid_count",
+    "bssid_changed",
+    "security_changed",
+    "security_strength_delta",
+]
+```
+
+| Feature | Significado |
+|---|---|
+| `ssid_bssid_count` | quantidade contextual de BSSIDs observados para o SSID |
+| `bssid_changed` | indica mudança de BSSID em relação à referência |
+| `security_changed` | indica mudança na configuração de segurança |
+| `security_strength_delta` | diferença relativa de força da configuração de segurança |
+
+---
+
+### Preprocessing
+
+As features passam pelo `StandardScaler` científico congelado antes da inferência.
+
+```text
+features
+   ↓
+StandardScaler
+   ↓
+One-Class SVM
+   ↓
+decision_function
+   ↓
+anomaly_score
+   ↓
+threshold
 ```
 
 ---
 
-## V2I
+### Modelos presentes na pesquisa
 
-```bash
-python -m ml.preprocessing.normalize_v2i --input data/external/zenodo_v2i/wifi-exp-log-summary.csv --output data/interim/v2i
-```
+O repositório também possui implementações e experimentos com:
 
-Saídas:
+- Isolation Forest;
+- One-Class SVM;
+- Autoencoder.
+
+Esses modelos fazem parte da trilha científica de comparação e pesquisa.
+
+O modelo utilizado pelo runtime desktop atual é o **One-Class SVM congelado**.
+
+---
+
+## Artefatos científicos congelados
+
+A aplicação utiliza uma cadeia de artefatos científicos versionados.
+
+### Referência normal
+
+SHA-256:
 
 ```text
-v2i_all_normal.parquet
-v2i_beacon_profile.parquet
-v2i_desktop_aux.parquet
-v2i_80211ad_aux.parquet
+fddc8401cb65281ec2230aea127fde53c2c7bb1073c004ad2f822021da013b3f
 ```
 
 ---
 
-## Continuous Long-term Wi-Fi
+### StandardScaler
 
-```bash
-python -m ml.preprocessing.normalize_longterm --input data/external/zenodo_longterm/UM_DSI_DB_v1.0.0_lite.zip --output data/interim/longterm
-```
-
-Também aceita o ZIP externo do Zenodo e pasta já extraída.
-
-Saídas:
+SHA-256:
 
 ```text
-longterm_all_normal.parquet
-longterm_summary.json
+e9560450fbf3413b17ddec72465488b7b0be8a94333d8df54d77a2d1aba1b263
 ```
 
 ---
 
-## Station — 802.11 Management Frames
+### Modelo One-Class SVM
 
-O normalizador aceita:
-
-- pasta `datasets/` já extraída;
-- `datasets.zip`;
-- ZIP externo do Zenodo contendo `datasets.zip`.
-
-Exemplo:
-
-```bash
-python -m ml.preprocessing.normalize_station --input data/external/zenodo_station/8003772.zip --output data/interim/station
-```
-
-Ou:
-
-```bash
-python -m ml.preprocessing.normalize_station --input data/external/zenodo_station/datasets.zip --output data/interim/station
-```
-
-Saídas:
+SHA-256:
 
 ```text
-station_all_normal.parquet
-station_beacons.parquet
-station_ap_frames.parquet
-station_summary.json
-```
-
-### Perfis
-
-`station_all_normal.parquet`
-
-Contém todos os frames:
-
-```text
-Beacon
-Probe Request
-Probe Response
-```
-
-`station_beacons.parquet`
-
-Contém apenas Beacon frames.
-
-`station_ap_frames.parquet`
-
-Contém:
-
-```text
-Beacon
-+
-Probe Response
-```
-
-São os frames nos quais podemos associar um BSSID/AP com mais segurança.
-
-### Dados preservados
-
-- timestamp;
-- tempo relativo da captura;
-- RSSI;
-- SSID anonimizado;
-- BSSID anonimizado quando semanticamente seguro;
-- endereço transmissor;
-- endereço receptor;
-- `MAC_timestamp` bruto;
-- tipo do frame;
-- sessão/captura;
-- flags indicando anonimização.
-
-Não inferimos canal, segurança ou beacon interval, pois essas informações não estão disponíveis no CSV fornecido.
-
-Também não atribuímos BSSID a Probe Requests.
-
----
-
-## Testes
-
-```bash
-pytest
+93cc7cc20e80213150e3167a93b5be5c7e353efbca6fe67ff63aa8aa4507aa3d
 ```
 
 ---
 
-## Regra de dados
+### Threshold
+
+SHA-256:
 
 ```text
-data/external/
-    dados originais
-
-data/interim/
-    dados no schema canônico
-
-data/processed/
-    features prontas para ML
+9dbeb3c66c43f01319b0bdf6453cab7fa29132a0a45a20fa2746cae0c6c5969f
 ```
 
-Os arquivos originais nunca são alterados.
+Valor:
 
-## Próximo passo
-
-Validar os **quatro normalizadores sobre os datasets reais**, gerar relatório de qualidade e definir quais perfis entram na etapa seguinte de Machine Learning.
-
+```text
+3.2659592363870615e-08
+```
 
 ---
 
-# Fase 2 — Passo 8: validação e qualidade
+### Split científico
 
-Foi adicionado:
-
-```text
-ml/evaluation/dataset_quality_report.py
-```
-
-O script inspeciona os quatro datasets originais e gera:
+Schema:
 
 ```text
-reports/
-├── data_quality_report.json
-└── data_quality_report.md
+desktop_session_split_plan_v2
 ```
 
-Exemplo:
-
-```bash
-python -m ml.evaluation.dataset_quality_report \
-  --mendeley "data/external/mendeley_rogue_ap.zip" \
-  --v2i "data/external/zenodo_v2i/6884095.zip" \
-  --longterm "data/external/zenodo_longterm/6646008.zip" \
-  --station "data/external/zenodo_station/8003772.zip" \
-  --output reports
-```
-
-## Decisão resultante
-
-Treino normal principal:
+Digest:
 
 ```text
-Mendeley legítimo
-+
-V2I 802.11n beacon profile
-+
-dados próprios futuramente
+a5e481a0067cf72ead32cf5b85c1a3eab5bee710f6e74f0856ddb0e62de88d15
 ```
 
-Robustez/generalização:
+Scientific freeze SHA-256:
 
 ```text
-Long-term
-+
-Station
+866df41f7daf8249287da770e0a67229247e413b11dc08a4b36101fa411f1010
 ```
-
-Ataques:
-
-```text
-Mendeley Rogue sintético (teste auxiliar)
-+
-Evil Twin próprio/controlado apenas em experimento futuro com ground truth verificado
-```
-
-Durante a validação também foi corrigido o mapeamento do V2I:
-
-```text
-802.11ad / 60.480 MHz -> canal 2
-```
-
-O 802.11ad continua separado do modelo desktop inicial.
-
-## Próximo passo
-
-Encerrar a Fase 2 criando o manifesto definitivo dos datasets e, em seguida,
-iniciar a Fase 3 com EDA e definição dos perfis de features para os experimentos.
-
 
 ---
 
-# Fase 2 — concluída
+### Política de freeze
 
-O manifesto definitivo está em:
+Depois de congelados, os artefatos não devem sofrer:
 
-```text
-config/dataset_manifest.json
-docs/dataset_manifest.md
-```
+- refit silencioso;
+- recalibração silenciosa;
+- alteração automática;
+- substituição silenciosa da referência;
+- mudança silenciosa do threshold;
+- atualização por dados exploratórios.
 
-Validação:
-
-```bash
-python -m ml.preprocessing.validate_dataset_manifest
-```
-
-A seleção oficial ficou:
-
-```text
-TREINO NORMAL
-Mendeley legítimo
-+ V2I 802.11n Beacon Profile
-+ dados próprios (futuramente)
-
-ROBUSTEZ
-Long-term
-+ Station
-
-ATAQUES
-Mendeley Rogue sintético (auxiliar)
-+ eventual Evil Twin próprio/controlado, somente com ground truth verificado
-```
-
-A próxima fase é a **Fase 3 — EDA e análise individual dos datasets**.
-
+Um novo treinamento deve produzir uma **nova versão científica**, preservando os artefatos utilizados nos resultados atuais.
 
 ---
 
-# Fase 3 — Passo 1
+## Metodologia científica
 
-Foi realizada a análise exploratória individual dos quatro datasets.
+### Coleta própria normal
 
-Resultados:
+O pipeline científico utiliza sessões normais próprias coletadas em ambiente Windows.
+
+Estado utilizado no freeze:
 
 ```text
-reports/eda/
-├── eda_summary.json
-├── eda_summary.md
-└── plots/
+9 sessões normais válidas
+0 sessões inválidas
+0 grupos de conteúdo duplicados
+0 pares com sobreposição temporal
 ```
-
-Validação:
-
-```bash
-python -m ml.evaluation.eda_step1
-```
-
-Principais conclusões:
-
-- Mendeley permanece como base pública relacionada ao contexto de Evil Twin e é
-  usada em experimentos auxiliares; não constitui ground truth da avaliação
-  final desktop.
-- BeaconInterval do Mendeley possui baixa variabilidade nos dados normais.
-- V2I 802.11n é o melhor perfil Beacon complementar.
-- Long-term será usado com amostragem/agrupamento por sessão.
-- Station será usado principalmente para robustez e falsos positivos.
-
-Próximo passo: comparação das distribuições entre fontes e definição final
-da compatibilidade de features.
-
 
 ---
 
-# Fase 3 — Passo 2
+### Split independente
 
-Foi realizada a comparação semântica entre as features dos quatro datasets.
+O split é realizado por sessões.
 
-Relatórios:
+O conjunto normal independente possui:
 
 ```text
-reports/eda/
-├── cross_dataset_comparison.json
-└── cross_dataset_comparison.md
+2 sessões
+1395 observações brutas
+1082 observações elegíveis
 ```
 
-Principais decisões:
+Isso evita tratar observações de uma mesma sessão como se fossem amostras completamente independentes em diferentes conjuntos.
+
+---
+
+### Referência normal
+
+Uma referência contextual normal é construída a partir do conjunto definido no protocolo científico.
+
+A referência é utilizada para determinar comportamentos como:
+
+- mudança de BSSID;
+- mudança de segurança;
+- quantidade contextual de BSSIDs;
+- diferença relativa de segurança.
+
+---
+
+### Treinamento
 
 ```text
-RSSI bruto
+dados normais
     ↓
-não concatenar
+features
     ↓
-agregar por AP/janela
+StandardScaler
     ↓
-rssi_mean / std / min / max / delta
+One-Class SVM
+    ↓
+validação
+    ↓
+threshold
+    ↓
+freeze
 ```
-
-e:
-
-```text
-Mendeley BeaconInterval configurado
-!=
-V2I meanInterBeaconTime observado
-```
-
-Portanto, para o perfil Beacon será derivada a feature comum:
-
-```text
-observed_inter_beacon_ms
-```
-
-O próximo passo é implementar esse feature engineering e criar os primeiros
-arquivos em `data/processed/`.
-
 
 ---
 
-# Fase 3 — Passo 3
+### Separação das evidências
 
-Feature engineering inicial implementado.
-
-```text
-ml/features/
-├── schema.py
-├── io.py
-├── beacon_profiles.py
-└── build_profiles.py
-```
-
-Profiles:
+A metodologia distingue explicitamente:
 
 ```text
-PROFILE_BEACON_1S
-PROFILE_RSSI_TEMPORAL_5S
+dados normais de treino/referência
+                ≠
+teste normal independente
+                ≠
+sessão exploratória não verificada
+                ≠
+cenários hipotéticos
 ```
 
-Os primeiros datasets preparados para ML estão em:
-
-```text
-data/processed/
-```
-
-O próximo passo define filtros de qualidade, balanceamento entre fontes e
-splits por sessão/rede sem leakage.
-
+Dados exploratórios ou hipotéticos não podem modificar automaticamente os artefatos de produção congelados.
 
 ---
 
-# Fase 3 — Passo 4
+## Resultados e interpretação
 
-Foram adicionados filtros de qualidade e splits sem leakage.
+### Teste normal independente
 
-```text
-ml/datasets/
-├── quality.py
-├── splits.py
-└── validate_step4.py
-```
-
-Arquivos:
+No conjunto normal independente congelado:
 
 ```text
-data/processed/splits/profile_rssi_temporal_5s/
+False Positive Rate = 0.0
 ```
 
-Regras principais:
+Foram avaliadas:
 
 ```text
-- sem remoção automática por IQR/z-score/P99;
-- RSSI fisicamente plausível;
-- TEMPORAL_RICH exige window_count >= 2;
-- Mendeley dividido por identidade de AP;
-- V2I dividido por trace;
-- ataques nunca entram no treino;
-- balanceamento somente no treino.
+2 sessões
+1395 observações brutas
+1082 observações elegíveis
 ```
 
-Próximo passo: criar as matrizes X e congelar conjuntos de features para o baseline.
+Nenhuma observação elegível daquele conjunto ultrapassou o threshold congelado.
 
+Isso mede o comportamento no **conjunto normal independente**.
+
+Não mede capacidade de detectar um Evil Twin real.
 
 ---
 
-# Fase 3 — Passo 5
+### Sessão histórica em contexto de ataque
 
-Foram criadas as matrizes finais de entrada para o primeiro baseline.
+Existe uma sessão histórica coletada em contexto relacionado a ataque.
 
-Conjuntos congelados:
-
-```text
-conservative_v1
-    rssi_std_db
-    rssi_delta_db
-    window_count
-```
-
-e:
+Ela possui:
 
 ```text
-complete_v1
-    rssi_mean_dbm
-    rssi_std_db
-    rssi_min_dbm
-    rssi_max_dbm
-    rssi_delta_db
-    window_count
+694 observações totais
+560 observações elegíveis
 ```
-
-Os arquivos ficam em:
-
-```text
-data/processed/ml_ready/profile_rssi_temporal_5s/
-```
-
-Cada split contém:
-
-```text
-X.csv.gz
-y.csv.gz
-metadata.csv.gz
-```
-
-IDs, fonte, sessão e label não entram em X.
-
-Próximo passo: teste de source leakage/domain shift antes dos modelos de anomalia.
-
-
----
-
-# Fase 3 — Passo 6
-
-Foi executado um diagnóstico explícito de source leakage.
-
-Um classificador logístico tentou distinguir:
-
-```text
-Mendeley
-vs.
-V2I
-```
-
-usando apenas dados normais.
 
 Resultado:
 
 ```text
-conservative_v1
-    forte source leakage
-
-complete_v1
-    source leakage ainda maior
-
-conservative_v2
-    rssi_std_db + rssi_delta_db
-    muito mais próximo do acaso
+exploratory_threshold_exceedance_rate = 0.0
 ```
 
-Por isso:
+O papel científico dessa sessão é:
 
 ```text
-conservative_v2
+exploratory_unverified_attack_context
 ```
 
-passa a ser o baseline principal para o primeiro modelo de anomalia.
+A sessão **não possui ground truth confirmado de Evil Twin**.
 
-O próximo passo prepara o pipeline de anomaly detection e calibração de threshold.
+Portanto, esse valor não deve ser descrito como:
 
+- recall;
+- false negative rate de ataque;
+- accuracy;
+- precision;
+- F1.
 
 ---
 
-# Fase 3 — Passo 7
+### Cenários hipotéticos
 
-O protocolo comum de anomaly detection foi congelado.
+O projeto também possui cenários hipotéticos construídos sobre o conjunto normal independente para analisar a sensibilidade do detector a perturbações controladas.
 
-```text
-feature_set:
-conservative_v2
-
-features:
-rssi_std_db
-rssi_delta_db
-```
-
-O `StandardScaler` é ajustado apenas em `train_balanced`.
-
-Convenção:
+Resumo:
 
 ```text
-anomaly_score maior = mais anômalo
+5172 predições
+4090 flags acima do threshold
 ```
 
-Threshold inicial:
+Taxa global:
 
 ```text
-percentil 95 do validation normal
-= target FPR de 5%
+0.7907965970610982
 ```
-
-Ataques não participam da calibração do threshold.
-
-Arquivos principais:
-
-```text
-config/anomaly_evaluation_protocol.json
-
-ml/training/anomaly_pipeline.py
-ml/evaluation/anomaly_protocol.py
-
-ml/models/preprocessing/
-└── conservative_v2_standard_scaler.joblib
-
-data/processed/ml_ready/profile_rssi_temporal_5s/
-└── conservative_v2_scaled/
-```
-
-O próximo passo inicia a Fase 4 com Isolation Forest.
-
-
----
-
-# Fase 4 — Passo 1
-
-Primeiro baseline real treinado:
-
-```text
-Isolation Forest
-```
-
-Features:
-
-```text
-rssi_std_db
-rssi_delta_db
-```
-
-Treino:
-
-```text
-train_balanced
-normal only
-```
-
-Threshold:
-
-```text
-validation normal P95
-target FPR = 5%
-```
-
-Threshold congelado obtido neste experimento:
-
-```text
-0.04639529
-```
-
-Artefatos:
-
-```text
-ml/models/isolation_forest/
-reports/models/isolation_forest/
-```
-
-Próximo passo: One-Class SVM usando o mesmo protocolo.
-
-
----
-
-# Fase 4 — Passo 2
-
-Segundo baseline real:
-
-```text
-One-Class SVM
-```
-
-Configuração principal:
-
-```text
-kernel = rbf
-gamma = scale
-nu = 0.05
-```
-
-Mesmo protocolo do Isolation Forest:
-
-```text
-conservative_v2
-train_balanced normal only
-validation normal P95
-target FPR = 5%
-```
-
-Threshold obtido:
-
-```text
-0.00032858
-```
-
-Relatórios:
-
-```text
-reports/models/one_class_svm/
-```
-
-Próximo passo: Autoencoder.
-
-
----
-
-# Fase 4 — Passo 3
-
-Terceiro baseline:
-
-```text
-Autoencoder
-PyTorch
-2 -> 4 -> 1 -> 4 -> 2
-```
-
-Treinado somente com `train_balanced` normal.
-
-A validação não foi usada para early stopping.
-
-Score:
-
-```text
-mean squared reconstruction error
-```
-
-Threshold:
-
-```text
-validation normal P95
-= 0.60188825
-```
-
-Agora temos:
-
-```text
-Isolation Forest
-One-Class SVM
-Autoencoder
-```
-
-sob o mesmo protocolo.
-
-Próximo passo: comparação formal dos três e diagnóstico do feature set.
-
-
----
-
-# Fase 4 — Passo 4
-
-Foi concluída a primeira comparação formal entre:
-
-```text
-Isolation Forest
-One-Class SVM
-Autoencoder
-```
-
-usando `conservative_v2`.
-
-Conclusão:
-
-```text
-o gargalo atual é a representação das features,
-não apenas a escolha do algoritmo.
-```
-
-A partir daqui o trabalho é dividido em três tracks:
-
-```text
-TRACK_G_GENERALIZATION
-    conservative_v2
-    Mendeley + V2I
-
-TRACK_E_EVIL_TWIN_CONTEXT
-    evil_twin_contextual_v1
-    Mendeley + futuras coletas próprias
-
-TRACK_D_DESKTOP
-    somente features confirmadas pelo scanner Windows
-```
-
-O próximo passo implementa `evil_twin_contextual_v1` sem usar flags sintéticas
-prontas ou identificadores crus como features.
-
-
----
-
-# Fase 4 — Passo 5
-
-Foi implementado:
-
-```text
-evil_twin_contextual_v1
-```
-
-O profile é específico para redes com histórico conhecido.
-
-Divisão dos normais do Mendeley:
-
-```text
-40% reference
-30% model_train
-15% validation
-15% test_normal
-```
-
-O `reference` constrói somente o contexto histórico e não é usado como conjunto
-de treino do anomaly model.
-
-Features:
-
-```text
-ssid_bssid_count
-bssid_changed
-channel_changed
-security_changed
-security_strength_delta
-is_hidden
-configured_beacon_interval_ms
-```
-
-SSID/BSSID crus não são armazenados nos arquivos processados; apenas hashes
-SHA-256 de correlação.
-
-O próximo passo cria matrizes ML, analisa variância/redundância e ajusta o scaler
-somente em `model_train_normal`.
-
-### Integridade do Passo 5
-
-Os artefatos do `evil_twin_contextual_v1` foram regenerados com o schema
-canônico atualizado carregado explicitamente. Isso garante que
-`configured_beacon_interval_ms` esteja presente nos arquivos processados e que
-a cobertura reportada corresponda aos dados reais.
-
-
----
-
-# Fase 4 — Passo 6
-
-O Track E está pronto para Machine Learning.
-
-Feature set principal:
-
-```text
-contextual_full_v1
-
-ssid_bssid_count
-bssid_changed
-channel_changed
-security_changed
-security_strength_delta
-is_hidden
-```
-
-`configured_beacon_interval_ms` foi removida porque é globalmente constante.
-
-Features de evento constantes no normal foram preservadas de propósito.
-
-Foram criados `X / y / metadata`, o scaler foi ajustado somente no
-`model_train_normal` e o protocolo de avaliação contextual foi congelado.
-
-Próximo passo: Isolation Forest no Track E.
-
-
----
-
-# Fase 4 — Passo 7
-
-Isolation Forest treinado no Track E com:
-
-```text
-contextual_full_v1
-```
-
-Threshold calibrado em `validation_normal`:
-
-```text
-0.22951226
-```
-
-A avaliação separa:
-
-```text
-cobertura contextual
-```
-
-de:
-
-```text
-taxa de detecção no cenário sintético entre amostras elegíveis
-```
-
-A inspeção das árvores também confirma quais features foram efetivamente usadas.
-Features constantes no normal não geram splits no Isolation Forest.
-
-Próximo passo: One-Class SVM no Track E.
-
-
----
-
-# Fase 4 — Passo 8
-
-One-Class SVM treinado no Track E usando:
-
-```text
-contextual_full_v1
-```
-
-Configuração:
-
-```text
-kernel = rbf
-gamma = scale
-nu = 0.05
-```
-
-Threshold validation P95:
-
-```text
-0.00060341
-```
-
-O relatório separa cobertura contextual da taxa de detecção no cenário
-sintético elegível e inclui um
-diagnóstico explicativo de sensibilidade às features de evento que são
-constantes no treino normal.
-
-Próximo passo: Autoencoder no Track E.
-
-
----
-
-# Fase 4 — Passo 9
-
-Autoencoder treinado no Track E com:
-
-```text
-contextual_full_v1
-6 -> 8 -> 3 -> 8 -> 6
-```
-
-Treino normal-only e validation reservada para threshold P95.
-
-Threshold:
-
-```text
-0.00001332
-```
-
-Agora existem três modelos diretamente comparáveis no Track E:
-
-```text
-Isolation Forest
-One-Class SVM
-Autoencoder
-```
-
-Próximo passo: comparação formal e ablation com `contextual_variable_only_v1`.
-
-
----
-
-# Fase 4 — Passo 10
-
-Foi executada uma ablation controlada no Track E.
 
 Controle:
 
 ```text
-contextual_variable_only_v1
-
-ssid_bssid_count
-channel_changed
+0.0
 ```
 
-Foram removidas apenas:
+Resultados:
 
-```text
-bssid_changed
-security_changed
-security_strength_delta
-is_hidden
-```
+| Cenário | Predições | Flags | Threshold exceedance rate |
+|---|---:|---:|---:|
+| Controle hipotético | 1082 | 0 | 0.0 |
+| Segurança mais fraca | 963 | 963 | 1.0 |
+| Novo BSSID | 1082 | 1082 | 1.0 |
+| Novo BSSID + mudança de segurança | 1082 | 1082 | 1.0 |
+| Novo BSSID + downgrade | 963 | 963 | 1.0 |
 
-Isolation Forest, One-Class SVM e Autoencoder foram retreinados com o mesmo
-protocolo para quantificar a contribuição dessas features de evento.
+Esses números representam **testes exploratórios de sensibilidade**.
 
-O candidato operacional atual do Track E é:
+Não representam:
 
-```text
-One-Class SVM + contextual_full_v1
-```
-
-Essa escolha deve ser reavaliada futuramente caso exista ground truth verificado de Evil Twin real.
-
-Próximo passo: estudar features específicas de protocolo, começando por TSF.
-
+- recall de ataque;
+- precisão de ataque;
+- F1 de ataque;
+- acurácia de ataque;
+- ROC-AUC;
+- PR-AUC.
 
 ---
 
-# Fase 4 — Passo 11
+### Resumo das evidências
 
-Foi executada uma ablation específica de TSF.
-
-Feature estudada:
-
-```text
-tsf_reference_monotonic_violation
-```
-
-Ela compara o `BeaconTimestamp` atual com o maior TSF observado no histórico
-normal congelado para o mesmo BSSID dentro da mesma sessão.
-
-O cenário sintético `tsf_reset` foi auditado e foi confirmado que ele altera
-diretamente `BeaconTimestamp` em 5.398/5.398 linhas e `SequenceNumber` em
-5.397/5.398.
-
-Por isso a feature permanece:
-
-```text
-ABLATION ONLY
-```
-
-e não foi promovida para `contextual_full_v1` nem para o profile desktop.
-
-Próximo passo: ablation isolada de `bssid_local_admin_flag`.
-
+| Evidência | Ground truth de Evil Twin | Métrica válida | Interpretação |
+|---|---|---|---|
+| Teste normal independente | Não aplicável | FPR normal | comportamento do detector em dados normais independentes |
+| Sessão histórica | Não confirmado | threshold exceedance rate | análise exploratória |
+| Cenários hipotéticos | Não | threshold exceedance rate | stress test de sensibilidade |
 
 ---
 
-# Fase 4 — Passo 12
+## Datasets
 
-Ablation isolada de `bssid_local_admin_flag`.
+O projeto possui pipelines para múltiplas fontes de dados utilizadas durante a pesquisa.
 
-A feature foi derivada diretamente do bit U/L do BSSID; a coluna pronta
-`BSSID_LocalAdmin` do dataset sintético não foi usada como feature.
+Entre elas:
 
-BSSIDs legítimos também apresentam U/L=1, e o cenário sintético foi criado
-explicitamente em torno dessa propriedade. Por isso a feature permanece
-`ABLATION ONLY`.
+- Mendeley Rogue AP;
+- Wi-Fi V2I;
+- Continuous Long-term Wi-Fi;
+- Station / 802.11 Management Frames;
+- coletas próprias realizadas em Windows.
 
-Próximo passo: investigar `observed_channel_vs_advertised_mismatch`.
+Diretórios reservados:
 
+```text
+data/external/mendeley_rogue_ap/
+data/external/zenodo_v2i/
+data/external/zenodo_longterm/
+data/external/zenodo_station/
+```
+
+Os datasets públicos são utilizados na trilha de:
+
+- pesquisa;
+- normalização;
+- feature engineering;
+- análise de representação;
+- comparação;
+- generalização.
+
+Eles não são silenciosamente misturados ao modelo desktop congelado quando possuem contratos de observação incompatíveis.
+
+A versão desktop atual utiliza sua própria coorte normal Windows conforme o protocolo científico congelado.
 
 ---
 
-# Fase 4 — Passo 13
+## Scanner Windows Native Wi-Fi
 
-Foi concluída a revisão de semântica de canal.
+A coleta desktop utiliza a **Native Wi-Fi API** do Windows.
 
-Descoberta principal:
-
-```text
-contextual_full_v1.channel_changed
-usa raw Channel
-e não DSChannel/advertised_channel
-```
-
-O cenário sintético `channel_shift` altera `Channel` em 100% das linhas, mas
-não altera `DSChannel`.
-
-Além disso, `Channel != DSChannel` ocorre em aproximadamente 49,18% do normal
-quando `DSChannel=0` é incluído e em aproximadamente 40,95% dos pares normais
-com `DSChannel` válido.
-
-Decisões:
+Principais componentes:
 
 ```text
-capture_advertised_mismatch -> REJECTED
-capture-based channel_changed -> DEPRECATED
-advertised_channel_changed -> REAL-WORLD CANDIDATE, ainda não validada
-contextual_full_v1 -> preservado, mas superseded pending v2
-```
-
-Próximo profile candidato:
-
-```text
-contextual_core_v2
-
-ssid_bssid_count
-bssid_changed
-security_changed
-security_strength_delta
-is_hidden
-```
-
-Próximo passo: avaliação formal IF × OCSVM × Autoencoder no `contextual_core_v2`.
-
-
----
-
-# Fase 4 — Passo 14
-
-Foi formalizado o novo profile principal do Track E:
-
-```text
-contextual_core_v2
-
-ssid_bssid_count
-bssid_changed
-security_changed
-security_strength_delta
-is_hidden
-```
-
-`channel_changed` baseado no raw `Channel` foi removido após a revisão metodológica do Passo 13.
-
-Os três modelos foram retreinados e avaliados no mesmo protocolo. O candidato operacional atual é `One-Class SVM + contextual_core_v2`, ainda pendente de validação real.
-
-Próximo passo: `desktop_candidate_v1`, limitado às features realmente observáveis pelo scanner Windows.
-
-
----
-
-# Fase 4 — Passo 15
-
-Foi formalizado o `desktop_candidate_v1` para Windows Native Wi-Fi API.
-
-Features primárias:
-
-```text
-ssid_bssid_count
-bssid_changed
-security_changed
-security_strength_delta
-```
-
-`is_hidden` não foi transportada automaticamente: o Windows fornece uma
-condição observável de SSID não anunciado/vazio, registrada como
-`ssid_not_broadcast`, mas ela permanece metadata até validação semântica e
-retreinamento.
-
-A Native Wi-Fi API também expõe RSSI, Beacon Interval, TSF, frequência recebida
-e Information Elements por BSS, sem exigir packet capture. TSF permanece
-`ABLATION ONLY`.
-
-O OCSVM/scaler do `contextual_core_v2` não será reutilizado diretamente; o
-`desktop_candidate_v1` precisa de validação em Windows e novo treino/calibração.
-
-Próximo passo: implementar `wlanapi.dll` via ctypes e executar o primeiro scan
-real em Windows.
-
-
----
-
-# Fase 4 — Passo 16
-
-Implementado o primeiro scanner Windows Native Wi-Fi com `ctypes`:
-
-```text
-WlanOpenHandle
-WlanEnumInterfaces
-WlanScan
-WlanGetNetworkBssList
-WlanFreeMemory
-WlanCloseHandle
-```
-
-A camada nativa converte cada `WLAN_BSS_ENTRY` para `NativeWifiBssObservation`, mantendo as features separadas do adapter Win32.
-
-Também foram adicionados:
-
-```text
-desktop/windows/wlanapi_ctypes.py
 desktop/windows/scanner.py
-desktop/windows/diagnostic.py
-scripts/run_windows_wifi_diagnostic.ps1
+desktop/windows/wlanapi_ctypes.py
+desktop/windows/native_wifi_contract.py
+desktop/windows/ie_parser.py
+desktop/windows/scan_serialization.py
 ```
 
-O IE blob recebe bounds-check antes da leitura, e `ERROR_ACCESS_DENIED` é tratado como estado de permissão/localização em vez de lista vazia.
-
-Status:
+A implementação utiliza:
 
 ```text
-CTYPES SCANNER READY
-WINDOWS RUNTIME VALIDATION PENDING
+wlanapi.dll
 ```
 
-Nenhum scan real foi executado neste ambiente porque ele não é Windows.
+Dependendo do Windows, driver e adaptador, podem estar disponíveis informações como:
 
-Próximo passo: executar o diagnóstico no Windows e validar os dados reais do driver antes da coleta própria normal.
+- SSID;
+- BSSID;
+- intensidade ou qualidade de sinal;
+- frequência;
+- canal;
+- autenticação;
+- segurança;
+- Information Elements.
 
+A capacidade real de observação depende de:
+
+- versão do Windows;
+- adaptador Wi-Fi;
+- driver;
+- permissões;
+- políticas de localização;
+- serviços do sistema.
+
+O projeto também possui tratamento para:
+
+- scanner indisponível;
+- funcionalidade não suportada;
+- acesso negado;
+- falhas temporárias;
+- serialização consistente;
+- integração com o pipeline de inferência.
 
 ---
 
-# Fase 4 — Passo 17
+## Backend
 
-Implementado o protocolo de coleta própria normal no Windows:
+O backend é uma API local construída com **FastAPI**.
+
+Endereço padrão:
 
 ```text
-Native Wi-Fi
-→ scans repetidos
-→ scans.jsonl
-→ manifest.json
-→ runtime_validation.json
+http://127.0.0.1:8765
 ```
 
-Identificadores em claro ficam desabilitados por padrão e o split futuro será
-agrupado por `session_id`.
-
-Nenhum modelo desktop foi treinado.
-
-
----
-
-# Fase 4 — Passo 18
-
-Implementado o pipeline:
+Principais módulos:
 
 ```text
-data/raw/own/windows
-→ validação de integridade/runtime
-→ data/interim/own/windows
+backend/app.py
+backend/scanner_service.py
+backend/inference.py
+backend/model_status.py
+backend/persistence.py
+backend/history.py
+backend/dashboard.py
+backend/diagnostics.py
+backend/settings.py
+backend/runtime_store.py
+backend/runtime_paths.py
+backend/migrations_runner.py
 ```
 
-Nenhuma sessão Windows real foi importada e nenhum modelo foi treinado.
+Responsabilidades:
 
+- executar scans;
+- serializar resultados;
+- executar inferência;
+- validar artefatos científicos;
+- persistir observações;
+- servir histórico;
+- fornecer dados do dashboard;
+- armazenar configurações;
+- gerar diagnósticos;
+- executar migrations;
+- resolver caminhos de runtime.
 
 ---
 
-# Fase 4 — Passo 19
+## Frontend e Electron
 
-Foi congelada a metodologia de referência normal do `desktop_candidate_v1`.
-
-Split mínimo, sempre por `session_id`:
+O frontend utiliza:
 
 ```text
-reference   = 1 sessão
-model_train = 2 sessões
-validation  = 1 sessão
-test_normal = 1 sessão
+React
+TypeScript
+Vite
+Electron
+Tailwind CSS
 ```
 
-Somente o split `reference` constrói o histórico normal.
+A versão `v1.3.0` recebeu um redesign completo da interface.
 
-As quatro features desktop já possuem transformador próprio:
+Também são utilizadas:
 
 ```text
-ssid_bssid_count
-bssid_changed
-security_changed
-security_strength_delta
+Three.js
+GSAP
+Anime.js
+Motion
+Lucide React
+Recharts
 ```
-
-Não há sessões reais suficientes ainda, portanto nenhum modelo foi treinado.
-
 
 ---
 
-# Fase 4 — Passo 20
+### Componentes visuais
 
-Foi congelado o protocolo ML do `desktop_candidate_v1`.
-
-Quando existirem cinco sessões Windows normais runtime-ready, o pipeline poderá
-gerar automaticamente:
+Entre os componentes introduzidos no redesign estão:
 
 ```text
-X / y / metadata
-StandardScaler fit apenas no model_train
+frontend/src/components/visual/AmbientNetworkScene.tsx
+frontend/src/components/visual/NetworkBackdrop.tsx
+frontend/src/components/visual/ScanRadarScene.tsx
+frontend/src/components/visual/SignalPulseField.tsx
+frontend/src/lib/animation.ts
 ```
 
-O One-Class SVM e o threshold ainda não são criados neste passo.
+---
 
-No estado atual:
+### Electron
+
+O Electron é responsável por:
+
+- processo principal;
+- preload;
+- IPC;
+- lifecycle do backend;
+- scheduler de scans;
+- integração Windows;
+- inicialização do backend empacotado em produção.
+
+Principais arquivos:
 
 ```text
-real runtime-ready sessions = 0
-ML matrices = blocked
-scaler = blocked
-model = not trained
+frontend/electron/main.cjs
+frontend/electron/preload.cjs
+frontend/electron/backend-manager.cjs
+frontend/electron/auto-scan-scheduler.cjs
 ```
-
 
 ---
 
-# Fase 4 — Passo 21
+## Telas da aplicação
 
-Implementado o módulo de treino/calibração do OCSVM desktop:
+### Dashboard
 
 ```text
-model_train -> fit OCSVM
-validation -> P95 threshold
-test_normal -> independent FPR
+frontend/src/pages/DashboardPage.tsx
 ```
 
-O projeto real continua bloqueado porque as sessões Windows ainda não foram
-coletadas.
-
-Fixtures sintéticas existem somente nos testes de software e não são tratadas
-como resultado científico.
-
+Apresenta uma visão geral da aplicação e do estado operacional.
 
 ---
 
-# Fase 4 — Passo 22
-
-Implementado o pipeline separado para **observação defensiva** de um experimento
-Wi-Fi controlado e autorizado.
-
-A ferramenta não cria/configura o ataque.
+### Scan
 
 ```text
-data/raw/own/windows_attack
-→ integrity/import
-→ frozen normal reference
-→ attack features
-→ future fixed-model evaluation
+frontend/src/pages/ScanPage.tsx
 ```
 
-Dados de ataque permanecem proibidos em reference/scaler/model/threshold.
-
+Responsável pelo scan manual e pelos principais estados do scanner/modelo.
 
 ---
 
-# Fase 4 — Passo 23
-
-Implementado o avaliador final do `desktop_candidate_v1` usando exclusivamente
-artefatos congelados.
+### Redes
 
 ```text
-frozen scaler + frozen OCSVM + frozen threshold
-+ test_normal independente
-+ eventual ataque real somente se houver ground truth verificado
-→ métricas compatíveis com o ground truth disponível
+frontend/src/pages/NetworksPage.tsx
 ```
 
-A avaliação final de métricas de ataque rejeita dados sintéticos e não permite
-refit/recalibração. Cenários sintéticos ou hipotéticos são avaliados
-separadamente apenas como stress tests exploratórios.
-
-A avaliação real disponível cobre o conjunto normal independente. Não há
-métricas de desempenho de ataque como precision, recall, F1-score, accuracy,
-ROC-AUC ou PR-AUC porque não existe ground truth verificado de Evil Twin real.
-
+Apresenta redes observadas, filtros, estado contextual e detalhes.
 
 ---
 
-# Fase 4 — Passo 24
-
-Backend local FastAPI implementado:
+### Histórico
 
 ```text
-GET  /health
-POST /scan
-GET  /networks
-GET  /model
+frontend/src/pages/HistoryPage.tsx
 ```
 
-O scanner nativo é inicializado somente no primeiro `/scan`.
-
-Instalação/execução:
-
-```bash
-pip install -r requirements-backend.txt
-python -m backend
-```
-
+Permite consultar scans persistidos anteriormente.
 
 ---
 
-# Fase 4 — Passo 25
-
-Persistência local adicionada com SQLite + SQLAlchemy + Alembic.
-
-`POST /scan` grava sessões e observações sem persistir SSID/BSSID em claro.
-
-Novo endpoint:
+### Modelo
 
 ```text
-GET /database
+frontend/src/pages/ModelPage.tsx
 ```
 
+Apresenta o estado dos artefatos científicos utilizados pelo runtime.
 
 ---
 
-# Fase 4 — Passo 26
-
-Runtime do `desktop_candidate_v1` integrado ao backend:
+### Diagnósticos
 
 ```text
-scan
-→ frozen reference
-→ features
-→ scaler.transform
-→ OCSVM decision_function
-→ frozen threshold
-→ analysis
-→ SQLite
+frontend/src/pages/DiagnosticsPage.tsx
 ```
 
-Quando os artefatos reais ainda não existem, `/scan` continua funcionando com:
+Apresenta informações operacionais e permite gerar bundle local de suporte.
+
+---
+
+### Configurações
 
 ```text
-analysis.status = not_available
+frontend/src/pages/SettingsPage.tsx
 ```
 
-Redes sem histórico suficiente usam:
+Permite modificar parâmetros operacionais da aplicação.
+
+---
+
+## Persistência
+
+A aplicação utiliza:
 
 ```text
-analysis.status = insufficient_history
+SQLite
+SQLAlchemy
+Alembic
 ```
 
-e não são classificadas automaticamente como ataque.
-
-
----
-
-# Fase 4 — Passo 27
-
-APIs de histórico/auditoria implementadas:
+Local padrão do banco em produção:
 
 ```text
-/history/scans
-/history/scans/{scan_id}
-/history/scans/{scan_id}/observations
-/history/detections
-/history/detections/{detection_id}
-/history/models
-/history/models/{model_version_id}
+%LOCALAPPDATA%\EvilTwinDetector\evil_twin_detector.db
 ```
 
-O histórico não retorna SSID/BSSID/GUID em claro; somente identificadores hash persistidos.
-
-
----
-
-# Fase 4 — Passo 28
-
-Endpoints agregados para o futuro dashboard:
+Migrations versionadas:
 
 ```text
-GET /dashboard/overview
-GET /dashboard/trends
+backend/migrations/versions/0001_initial_schema.py
+backend/migrations/versions/0002_runtime_artifacts.py
+backend/migrations/versions/0003_application_settings.py
 ```
 
-O overview reúne status, KPIs, distribuição de suspeita, scans recentes,
-detecções recentes e versão ativa do modelo.
-
-Os dados históricos do dashboard permanecem anonimizados.
-
+O banco é armazenado localmente.
 
 ---
 
-# Fase 4 — Passo 29
+## Privacidade e segurança
 
-Configurações persistentes da aplicação:
+A aplicação foi projetada para processamento local.
+
+Princípios:
+
+- backend acessível somente pelo localhost;
+- banco armazenado localmente;
+- ausência de upload automático;
+- diagnóstico sem identificadores Wi-Fi claros por padrão;
+- dados brutos locais não são versionados pelo Git;
+- artefatos científicos possuem hashes de integridade;
+- eventos internos não precisam transportar SSID/BSSID em texto claro.
+
+---
+
+### Pseudonimização
+
+Identificadores podem ser representados por SHA-256.
+
+Isso deve ser interpretado como **pseudonimização**, e não como anonimização criptograficamente irreversível.
+
+Nomes de SSID previsíveis podem continuar suscetíveis a ataques de dicionário ou comparação.
+
+---
+
+## Tecnologias
+
+### Backend
+
+| Tecnologia | Função |
+|---|---|
+| Python | backend e pipelines |
+| FastAPI | API local |
+| Uvicorn | servidor ASGI |
+| Pydantic | validação |
+| SQLAlchemy | ORM |
+| Alembic | migrations |
+| SQLite | persistência |
+
+### Machine Learning
+
+| Tecnologia | Função |
+|---|---|
+| NumPy | processamento numérico |
+| pandas | manipulação de dados |
+| scikit-learn | modelos e preprocessing |
+| joblib | serialização |
+
+### Frontend
+
+| Tecnologia | Função |
+|---|---|
+| React | interface |
+| TypeScript | tipagem |
+| Vite | build |
+| Tailwind CSS | estilização |
+| Three.js | elementos visuais |
+| GSAP | animações |
+| Anime.js | animações |
+| Motion | transições |
+| Lucide React | ícones |
+| Recharts | gráficos |
+
+### Desktop e distribuição
+
+| Tecnologia | Função |
+|---|---|
+| Electron | aplicação desktop |
+| PyInstaller | empacotamento do backend |
+| electron-builder | empacotamento Electron |
+| NSIS | instalador Windows |
+
+### Testes
+
+| Tecnologia | Uso |
+|---|---|
+| Pytest | backend, ML e pipelines |
+| Vitest | frontend |
+| Playwright | E2E Electron |
+
+---
+
+## Estrutura do projeto
 
 ```text
-GET   /settings
-PATCH /settings
-POST  /settings/reset
+evil-twin-detector/
+│
+├── backend/
+│   ├── API
+│   ├── scanner
+│   ├── inference
+│   ├── persistence
+│   ├── history
+│   ├── diagnostics
+│   └── migrations
+│
+├── config/
+│   └── configurações e contratos
+│
+├── data/
+│   ├── app/
+│   ├── external/
+│   └── processed/
+│
+├── desktop/
+│   ├── features/
+│   ├── integration/
+│   ├── packaging/
+│   └── windows/
+│
+├── experiments/
+│
+├── frontend/
+│   ├── electron/
+│   ├── e2e/
+│   ├── src/
+│   └── tests/
+│
+├── ml/
+│   ├── datasets/
+│   ├── evaluation/
+│   ├── features/
+│   ├── models/
+│   ├── preprocessing/
+│   └── training/
+│
+├── scripts/
+│
+├── tests/
+│
+├── requirements-backend.txt
+├── requirements-ml.txt
+├── requirements-packaging.txt
+└── README.md
 ```
 
-Preferências de scan, paginação, dashboard e futura atualização automática
-ficam no SQLite.
-
-As configurações não podem alterar referência, scaler, OCSVM ou threshold.
-
-
 ---
 
-# Fase 4 — Passo 30
+## Instalação
 
-Frontend desktop iniciado com React + TypeScript + Vite + Electron + Tailwind CSS v4. Material UI não é utilizado.
+### Usuário final
 
+A forma recomendada de instalar a aplicação é utilizar o instalador disponibilizado na release do GitHub.
 
----
-
-# Fase 4 — Passo 31
-
-Dashboard React/Tailwind completo com Recharts, consumindo:
+Versão:
 
 ```text
-GET /dashboard/overview
-GET /dashboard/trends
+v1.3.0
 ```
 
-A tela possui KPIs, status do sistema, gráficos, atividade recente e estado do
-modelo. `npm install`/build continuam adiados até a conclusão das etapas.
-
-
----
-
-# Fase 4 — Passo 32
-
-Tela de scan detalhada com Tailwind CSS: pré-verificação, loading, tratamento de permissão de localização/Win32, filtros, busca e detalhe técnico por rede. O Electron expõe apenas um IPC fixo para abrir `ms-settings:privacy-location`.
-
-
----
-
-# Fase 4 — Passo 33
-
-Tela `/networks` concluída com Tailwind CSS:
+Release:
 
 ```text
-busca
-filtros
-ordenação
-contadores
-detalhes técnicos expansíveis
-features desktop_candidate_v1
+https://github.com/patricknperes/evil-twin-detector/releases/tag/v1.3.0
 ```
 
-A tela usa a última varredura em memória e não tenta reconstruir
-SSID/BSSID a partir do histórico anonimizado.
-
-
----
-
-# Fase 4 — Passo 34
-
-Tela `/history` concluída com Tailwind CSS.
-
-Fluxo de auditoria:
+Sistema alvo:
 
 ```text
-scan → observação anonimizada → detecção → versão do modelo
+Windows 10/11 x64
 ```
 
-A tela possui paginação e filtros e nunca tenta reconstruir SSID/BSSID em
-claro a partir do SQLite.
+O instalador ainda não possui assinatura digital de código.
 
-
----
-
-# Fase 4 — Passo 35
-
-Tela `/model` concluída com status dos quatro artefatos científicos, contrato
-das features, versões persistidas e auditoria por SHA-256.
-
-A UI é somente leitura e não permite retreino ou recalibração.
-
+Por esse motivo, o Windows SmartScreen pode apresentar um aviso durante a instalação.
 
 ---
 
-# Fase 4 — Passo 36
+## Ambiente de desenvolvimento
 
-Tela `/settings` concluída com leitura, edição persistente e reset.
+### Pré-requisitos
 
-A política científica permanece somente leitura.
-
+- Windows;
+- Python;
+- Node.js;
+- npm;
+- PowerShell;
+- adaptador Wi-Fi para execução de scans reais.
 
 ---
 
-# Fase 4 — Passo 37
+### Criar ambiente Python
 
-O Electron agora controla o ciclo de vida do backend local:
+Na raiz:
 
-```text
-health check
-→ inicia Python se necessário
-→ espera /health
-→ abre a janela
-→ encerra o backend pertencente ao Electron no quit
+```powershell
+python -m venv .venv
 ```
 
-Em desenvolvimento utiliza `python -m backend`.
+Ativar:
 
-O contrato de produção já espera `resources/backend/evil-twin-backend.exe`,
-que será criado em uma etapa posterior.
-
-
----
-
-# Fase 4 — Passo 38
-
-Backend preparado para PyInstaller e para o recurso
-`frontend/resources/backend/evil-twin-backend.exe`.
-
-O SQLite usa uma pasta gravável do usuário e as migrations são executadas
-antes do Uvicorn.
-
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
 
 ---
 
-# Fase 4 — Passo 39
+### Dependências Python
 
-Empacotamento desktop Windows preparado com electron-builder + NSIS.
-
-A versão instalada usa Vite com `base: "./"` e `createHashRouter`.
-
-O backend é incluído via `extraResources` como
-`<resources>/backend/evil-twin-backend.exe`.
-
-O instalador final permanece bloqueado até os builds reais.
-
+```powershell
+python -m pip install -r requirements-backend.txt
+python -m pip install -r requirements-ml.txt
+python -m pip install -r requirements-packaging.txt
+```
 
 ---
 
-# Fase 4 — Passo 40
+### Dependências frontend
 
-O Electron possui scheduler de scans automáticos conectado às preferências
-persistidas. O backend serializa `POST /scan` e devolve
-`409 scan_in_progress` para uma segunda varredura concorrente.
-
-Notificações são emitidas apenas para novas transições de redes para alta
-suspeita e não exibem SSID/BSSID nem confirmam Evil Twin.
-
+```powershell
+cd frontend
+npm ci
+```
 
 ---
 
-# Fase 4 — Passo 41
+### Executar a aplicação em desenvolvimento
 
-Dashboard e Redes observadas são sincronizados pelo evento `desktop:auto-scan-completed`, sem polling e sem reload completo do renderer.
+Na raiz:
 
-
----
-
-# Fase 4 — Passo 42
-
-Estado operacional centralizado no React para Backend, Scanner Native Wi-Fi, Modelo e Scheduler. A aplicação detecta perda e recuperação do backend sem recarregar o renderer.
-
+```powershell
+.\scripts\run_desktop_dev.ps1
+```
 
 ---
 
-# Fase 4 — Passo 43
+### Executar somente o backend
 
-Histórico e Modelo atualizam após scans automáticos/recuperação do backend. A rota `/diagnostics` exporta `support_bundle_v1` sem observações individuais, SSID/BSSID em claro, variáveis de ambiente ou caminhos absolutos.
-
-
----
-
-# Fase 4 — Passo 44
-
-A pipeline desktop agora possui um pré-flight científico obrigatório antes do
-freeze de split/referência.
-
-Sessões reais são validadas por proveniência, rótulo, SHA-256, cobertura,
-completude e ausência de identificadores Wi-Fi em claro. Conteúdo duplicado
-entre session_ids bloqueia o processo.
-
-Quando 5 sessões válidas existirem, `session_split_plan.json` e
-`scientific_freeze.json` tornam os assignments e hashes das fontes imutáveis.
-Novas sessões posteriores são detectadas, mas não entram silenciosamente no
-split congelado.
-
-No estado atual: `blocked_no_real_sessions`.
-
+```powershell
+.\scripts\run_backend.ps1
+```
 
 ---
 
-# Fase 4 — Passo 45
+## Testes e validação
 
-A cadeia de artefatos de `desktop_candidate_v1` agora é ligada por SHA-256 e
-pela mesma identidade de freeze científico.
+### Testes Python
 
-`artifact_lineage.json` congela scaler e matrizes escaladas; o
-`desktop_threshold_v2` liga referência, scaler e OCSVM. Runtime e avaliação
-final bloqueiam qualquer mistura entre freezes diferentes.
+```powershell
+python -m pytest -q tests
+```
 
-No estado atual os artefatos desktop reais continuam ausentes e nada foi
-treinado artificialmente.
-
-
----
-
-# Fase 4 — Passo 46
-
-A aplicação possui agora uma matriz única de readiness para a execução final:
+Resultado validado na `v1.3.0` antes da limpeza documental:
 
 ```text
+235 passed
+2 skipped
+1 warning
+```
+
+Existe um warning conhecido relacionado à compatibilidade/depreciação entre `httpx` e `starlette.testclient`.
+
+---
+
+### Testes frontend
+
+```powershell
+cd frontend
+npm test
+```
+
+Resultado:
+
+```text
+13 test files passed
+32 tests passed
+```
+
+---
+
+### TypeScript
+
+```powershell
+npm run typecheck
+```
+
+Resultado:
+
+```text
+PASSED
+```
+
+---
+
+### Build web
+
+```powershell
+npm run build:web
+```
+
+Resultado:
+
+```text
+PASSED
+```
+
+---
+
+### Electron E2E
+
+```powershell
+npm run e2e
+```
+
+Resultado:
+
+```text
+6 passed
+```
+
+Os cenários E2E incluem situações como:
+
+- modelo ainda não pronto;
+- scanner indisponível;
+- scan manual sem modelo pronto;
+- atualização automática via IPC;
+- perda e recuperação do backend;
+- exportação de diagnóstico com proteção dos identificadores Wi-Fi.
+
+---
+
+### Validação integrada
+
+Na raiz:
+
+```powershell
+.\scripts\validate_renderer_e2e.ps1
+```
+
+---
+
+### Auditoria de dependências de produção
+
+```powershell
+cd frontend
+npm audit --omit=dev
+```
+
+Resultado validado:
+
+```text
+found 0 vulnerabilities
+```
+
+---
+
+### Readiness final
+
+```powershell
 python -m desktop.final_readiness
 ```
 
-Ela lista todos os gates entre a coleta Windows real e o instalador NSIS,
-distinguindo `READY`, `BLOCKED`, `NOT_EXECUTED` e `OPTIONAL`.
+Estado validado antes da limpeza documental:
 
-Nenhuma etapa científica é marcadaada como executada apenas porque o código
-correspondente existe.
+```text
+overall_status: COMPLETE
+final_pipeline_complete: true
 
-
----
-
-# Fase 4 — Passo 47
-
-A validação dependency-resolved do frontend foi preparada com `scripts/frontend_toolchain.py` e `scripts/validate_frontend_toolchain.ps1`.
-
-O ambiente atual não resolve `registry.npmjs.org` (`EAI_AGAIN`), portanto Vitest e Vite build permanecem `NOT EXECUTED`. Um typecheck auxiliar com o compilador TypeScript real e stubs temporários encontrou e permitiu corrigir contratos locais; esses stubs não são incluídos no projeto.
-
-
----
-
-# Fase 4 — Passo 48
-
-Harness de integração determinístico para backend + Electron scheduler, sem Wi-Fi real ou artefatos científicos reais.
-
-
----
-
-# Fase 4 — Passo 49
-
-Foi adicionada uma suíte Playwright/Electron para validar o renderer completo
-contra um backend HTTP determinístico de E2E.
-
-A suíte cobre navegação, modelo não pronto, erros de scanner, scan manual,
-Histórico, scan automático/IPC, perda/recuperação do backend e exportação
-privada de diagnóstico.
-
-A execução real de `npm run e2e` permanece condicionada às dependências npm.
-
-
----
-
-# Fase 4 — Passo 50
-
-Foi implementada a pipeline de geração do bundle final do TCC.
-
-Ela gera o bundle final com resultados do conjunto normal independente,
-distribuições de score, stress tests hipotéticos e manifesto de
-reprodutibilidade. Sem ground truth verificado de Evil Twin real, não são
-geradas matriz de confusão, curvas ROC/PR ou métricas de ataque como
-precision, recall e F1-score.
-
-
----
-
-# Fase 4 — Passo 51
-
-O release Windows agora possui um preflight estrito antes do electron-builder.
-
-Os scripts deixaram de depender de `$IsWindows`, melhorando a compatibilidade
-entre Windows PowerShell 5.1 e PowerShell 7+.
-
-O NSIS só pode ser iniciado depois que gates científicos, resultados finais,
-frontend dependency-resolved e Playwright/Electron E2E estiverem READY.
-
----
-
-# Fase 4 — Passo 52
-
-A implementação foi submetida a uma revisão geral antes da coleta Windows e
-passa a possuir um snapshot SHA-256 verificável.
-
-Foram endurecidos, entre outros pontos, o contrato de hash do SSID entre coleta
-e runtime, importações incrementais/idempotentes, cobertura contextual antes do
-freeze, coorte normal de um único ambiente para o E6, compatibilidade do ataque
-controlado com a referência e scripts PowerShell operacionais independentes do
-diretório de execução.
-
-A coleta Windows deve começar somente após:
-
-```powershell
-.\scripts\check_windows_collection_readiness.ps1
+ready_stage_count: 17
+mandatory_stage_count: 17
 ```
 
-retornar `READY_FOR_NORMAL_COLLECTION` no computador Windows. Para o E6 atual,
-a recomendação operacional é coletar 9 sessões normais independentes da mesma
-coorte/ambiente antes de congelar o split.
+> Alterações na árvore do repositório, inclusive mudanças documentais, podem alterar o snapshot de implementação. Após uma limpeza estrutural do repositório, os checks de freeze/readiness devem ser executados novamente antes de registrar o novo estado final.
 
-Os experimentos multi-source com Mendeley, V2I, Long-term e Station continuam
-separados do modelo desktop E6 e sustentam a análise de generalização; o modelo
-de produção desktop não reutiliza silenciosamente um modelo treinado nessas
-bases públicas.
+---
+
+## Build e distribuição
+
+### Backend
+
+```powershell
+.\scripts\build_backend_windows.ps1
+```
+
+O backend é empacotado com PyInstaller.
+
+---
+
+### Instalador Windows
+
+```powershell
+.\scripts\build_desktop_installer_windows.ps1
+```
+
+O pipeline de build executa:
+
+```text
+validação frontend
+        ↓
+Vitest
+        ↓
+TypeScript
+        ↓
+Vite build
+        ↓
+Electron E2E
+        ↓
+PyInstaller backend
+        ↓
+release preflight
+        ↓
+electron-builder
+        ↓
+NSIS
+        ↓
+verificação do instalador
+```
+
+---
+
+### Backend empacotado
+
+Em produção, o executável do backend é incluído como recurso da aplicação Electron.
+
+O processo principal gerencia:
+
+- inicialização;
+- disponibilidade;
+- recuperação;
+- encerramento.
+
+---
+
+### Symbolic links no Windows
+
+Em alguns ambientes Windows, o `electron-builder` pode exigir permissão para criação de symbolic links ao preparar o pacote `winCodeSign`.
+
+Alternativas possíveis:
+
+- habilitar o Developer Mode do Windows;
+- executar somente a etapa necessária com privilégio adequado.
+
+O uso permanente de um terminal elevado não é um requisito arquitetural da aplicação.
+
+---
+
+## Reprodutibilidade
+
+O projeto mantém mecanismos de rastreabilidade que relacionam:
+
+- código;
+- datasets;
+- split;
+- referência;
+- scaler;
+- modelo;
+- threshold;
+- execução;
+- release.
+
+Entre os artefatos utilizados estão:
+
+```text
+session_split_plan.json
+scientific_freeze.json
+preparation_manifest.json
+desktop_normal_reference.json
+threshold.json
+implementation snapshot
+release manifest
+```
+
+A aplicação não realiza treinamento ou recalibração silenciosa dos artefatos científicos durante o runtime.
+
+---
+
+### Bundle final de resultados
+
+O gerador final do TCC produz artefatos como:
+
+```text
+metrics_summary.csv
+score_distribution.csv
+exploratory_session_summary.csv
+hypothetical_scenarios.csv
+timing_summary.csv
+score_distribution.png
+hypothetical_threshold_exceedance.png
+final_results_summary.md
+reproducibility_manifest.json
+```
+
+O manifesto final diferencia explicitamente:
+
+- teste normal;
+- sessão exploratória sem ground truth confirmado de ataque;
+- cenários hipotéticos.
+
+---
+
+## Limitações
+
+### Ausência de ground truth confirmado de Evil Twin real
+
+Essa é a principal limitação científica do estado atual.
+
+O projeto não possui um conjunto independente de teste com **ground truth confirmado de Evil Twin real** adequado para uma avaliação supervisionada final.
+
+---
+
+### Métricas de ataque
+
+Por não existir ground truth confirmado, o projeto não apresenta como resultado final de ataque real:
+
+- precision;
+- recall;
+- F1-score;
+- accuracy;
+- ROC-AUC;
+- PR-AUC;
+- confusion matrix.
+
+---
+
+### Variabilidade das features
+
+No conjunto congelado utilizado durante o treinamento desktop, apenas:
+
+```text
+ssid_bssid_count
+```
+
+apresentou variância de treinamento relevante.
+
+As outras três features apresentaram variância zero naquele conjunto:
+
+```text
+bssid_changed
+security_changed
+security_strength_delta
+```
+
+Isso limita o comportamento que o modelo conseguiu aprender no conjunto atual e deve ser considerado na interpretação da capacidade de generalização.
+
+---
+
+### Generalização
+
+O modelo congelado foi construído a partir de uma coorte normal específica.
+
+Uma avaliação mais forte exige:
+
+- novos ambientes;
+- diferentes redes;
+- diferentes adaptadores;
+- diferentes drivers;
+- novas sessões independentes.
+
+---
+
+### Dependência do Windows
+
+A capacidade de observação depende de:
+
+- Windows;
+- `wlanapi.dll`;
+- adaptador Wi-Fi;
+- driver;
+- permissões;
+- políticas de localização;
+- serviços do sistema.
+
+---
+
+### Cenários hipotéticos
+
+Cenários sintéticos são úteis como stress tests de sensibilidade.
+
+Eles não substituem observações independentes com ground truth real.
+
+---
+
+### Assinatura digital
+
+O instalador Windows ainda não utiliza certificado de assinatura digital.
+
+---
+
+### Bundle frontend
+
+O build atual pode emitir aviso do Vite para chunks maiores que 500 kB.
+
+Isso não impede o funcionamento da aplicação, mas representa uma oportunidade de otimização.
+
+---
+
+### Warning da suíte Python
+
+Existe um warning conhecido relacionado à camada de testes HTTP/Starlette.
+
+Ele não impede a aprovação atual da suíte, mas deve ser eliminado futuramente.
+
+---
+
+## Trabalhos futuros
+
+### Coleta de dados
+
+- aumentar o número de sessões normais;
+- coletar em diferentes ambientes;
+- aumentar diversidade de redes;
+- utilizar diferentes adaptadores;
+- utilizar diferentes drivers;
+- testar diferentes versões do Windows;
+- manter separação adequada entre treino, validação e teste.
+
+---
+
+### Ground truth
+
+Obter, em trabalho futuro, dados com ground truth verificável utilizando um protocolo controlado, ético e metodologicamente adequado.
+
+A execução de um ataque real não é necessária para o funcionamento atual da aplicação.
+
+---
+
+### Machine Learning
+
+- comparar OCSVM, Isolation Forest e Autoencoder sob o mesmo protocolo;
+- investigar novas features;
+- melhorar a variabilidade das features;
+- realizar novos estudos de ablação;
+- avaliar sensibilidade do threshold;
+- testar generalização entre ambientes;
+- produzir novas versões do modelo sem alterar o freeze atual.
+
+---
+
+### Aplicação
+
+- melhorar acessibilidade;
+- realizar testes de usabilidade;
+- implementar code splitting;
+- reduzir tamanho do bundle frontend;
+- adicionar assinatura digital;
+- melhorar metadados e ícone do instalador;
+- ampliar diagnósticos;
+- testar uma matriz maior de versões do Windows.
+
+---
+
+### Pesquisa
+
+- aumentar a quantidade de dados independentes;
+- avaliar ambientes distintos;
+- analisar mudanças reais de infraestrutura;
+- investigar outras informações observáveis pelo cliente Wi-Fi;
+- aprofundar o estudo das limitações de detectores baseados somente na visão do cliente.
+
+---
+
+## Release atual
+
+### Evil Twin Detector v1.3.0
+
+A versão `v1.3.0` introduziu um redesign completo do frontend.
+
+Principais alterações:
+
+- nova identidade visual;
+- nova organização das telas;
+- novos componentes visuais;
+- integração com Three.js;
+- integração com GSAP;
+- integração com Anime.js;
+- integração com Motion;
+- atualização dos componentes;
+- ajuste dos testes E2E;
+- inclusão de `package-lock.json`;
+- validação completa do instalador.
+
+---
+
+### Instalador
+
+Arquivo utilizado no build:
+
+```text
+Evil Twin Detector-Setup-1.3.0-x64.exe
+```
+
+SHA-256:
+
+```text
+C81EE56EB4E055622174E1C2BC69306F1F51E00C0A1AA74B14724C79451A4DB3
+```
+
+O hash publicado na release do GitHub foi verificado contra o instalador local utilizado durante a validação.
+
+Release:
+
+```text
+https://github.com/patricknperes/evil-twin-detector/releases/tag/v1.3.0
+```
+
+---
+
+## Status científico da v1.3.0
+
+Os artefatos científicos congelados utilizados na `v1.3.0` não foram:
+
+- retreinados;
+- recalibrados;
+- substituídos;
+- modificados durante o redesign.
+
+A alteração da `v1.3.0` foi concentrada principalmente na interface e experiência da aplicação desktop.
+
+---
+
+## Sobre os nomes internos do projeto
+
+Alguns arquivos de código, testes, scripts e configurações ainda possuem identificadores históricos internos em seus nomes.
+
+Esses nomes podem ser mantidos quando fazem parte de:
+
+- imports;
+- contratos;
+- testes;
+- scripts;
+- automações;
+- rastreabilidade científica.
+
+Eles **não representam etapas que o usuário precisa executar**.
+
+A documentação oficial consolidada do estado atual do projeto é este `README.md`.
+
+---
+
+## Repositório
+
+```text
+https://github.com/patricknperes/evil-twin-detector
+```
+
+---
+
+## Aviso
+
+Este projeto possui finalidade **acadêmica e experimental**.
+
+Resultados produzidos pelo detector devem ser interpretados como **indicadores de anomalia ou suspeita**, e não como confirmação automática da existência de um ataque Evil Twin.
