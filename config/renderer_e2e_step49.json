@@ -1,0 +1,21 @@
+{
+  "phase": 4,
+  "step": 49,
+  "schema_version": "renderer_electron_e2e_step49_v1",
+  "status": "implemented_dependency_resolved_execution_pending",
+  "framework": "Playwright Electron",
+  "scenarios": [
+    "navigation_model_not_ready",
+    "scanner_unsupported_manual_scan",
+    "manual_scan_model_not_ready_history",
+    "automatic_scan_ipc_dashboard_refresh",
+    "backend_disconnect_recovery_no_reload",
+    "diagnostics_privacy_download"
+  ],
+  "e2e_only_environment": "EVIL_TWIN_E2E=1",
+  "real_windows_native_wifi": false,
+  "real_scientific_artifacts": false,
+  "os_notifications": false,
+  "fake_backend": true,
+  "npm_dependency_required": true
+}

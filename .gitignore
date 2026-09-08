@@ -1,0 +1,77 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/release/
+frontend/test-results/
+frontend/playwright-report/
+frontend/resources/backend/evil-twin-backend.exe
+*.tsbuildinfo
+
+# Build artifacts
+build/
+dist/
+release/
+
+# Local runtime / databases
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Wi-Fi data collected locally
+data/raw/
+data/interim/
+
+# Generated reports
+reports/
+
+# Temporary / backup files
+*.bak
+*.tmp
+*.temp
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+# Processed datasets - keep only current frozen runtime/reference artifacts
+data/processed/*
+!data/processed/desktop_candidate_v1/
+data/processed/desktop_candidate_v1/*
+!data/processed/desktop_candidate_v1/desktop_normal_reference.json
+!data/processed/desktop_candidate_v1/preparation_manifest.json
+!data/processed/desktop_candidate_v1/scientific_freeze.json
+!data/processed/desktop_candidate_v1/scientific_preflight.json
+!data/processed/desktop_candidate_v1/session_split_plan.json
+
+# ML models - keep only current desktop production model/scaler
+ml/models/*
+!ml/models/desktop_candidate_v1/
+ml/models/desktop_candidate_v1/*
+!ml/models/desktop_candidate_v1/ocsvm_v1/
+ml/models/desktop_candidate_v1/ocsvm_v1/*
+!ml/models/desktop_candidate_v1/ocsvm_v1/one_class_svm_desktop_candidate_v1.joblib
+!ml/models/desktop_candidate_v1/ocsvm_v1/one_class_svm_desktop_candidate_v1.json
+!ml/models/desktop_candidate_v1/ocsvm_v1/threshold.json
+
+!ml/models/preprocessing/
+ml/models/preprocessing/*
+!ml/models/preprocessing/desktop_candidate_v1_standard_scaler.joblib
+!ml/models/preprocessing/desktop_candidate_v1_standard_scaler.json

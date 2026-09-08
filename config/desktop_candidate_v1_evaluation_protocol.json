@@ -1,0 +1,134 @@
+{
+  "phase": 4,
+  "step": 20,
+  "protocol_version": "1.0.0",
+  "name": "desktop_candidate_v1_evaluation_protocol",
+  "status": "frozen_before_real_training",
+  "scope": "Known-network contextual anomaly detection using real Windows Native Wi-Fi observations.",
+  "feature_set": [
+    "ssid_bssid_count",
+    "bssid_changed",
+    "security_changed",
+    "security_strength_delta"
+  ],
+  "data_source": {
+    "primary": "own_windows",
+    "normal_only_before_attack_evaluation": true,
+    "public_mendeley_model_reuse": false,
+    "contextual_core_v2_model_reuse": false
+  },
+  "split_policy": {
+    "group_unit": "session_id",
+    "minimum_runtime_ready_sessions": 5,
+    "reference_sessions": 1,
+    "model_train_sessions": 2,
+    "validation_sessions": 1,
+    "test_normal_sessions": 1,
+    "random_row_split": false,
+    "reference_excluded_from_model_training": true,
+    "validation_or_test_updates_reference": false
+  },
+  "ml_matrix": {
+    "X": "only four desktop model features",
+    "y": "normal label only at this stage",
+    "metadata_separate": true,
+    "metadata_excluded_from_X": [
+      "source_dataset",
+      "session_id",
+      "environment",
+      "captured_at_utc",
+      "scan_index",
+      "interface_guid",
+      "ssid_hash",
+      "bssid_hash",
+      "security_type",
+      "security_strength",
+      "context_ssid_hash",
+      "context_resolution",
+      "context_available",
+      "feature_complete",
+      "label",
+      "attack_type",
+      "is_synthetic"
+    ]
+  },
+  "scaling": {
+    "transformer": "sklearn.preprocessing.StandardScaler",
+    "fit_split": "model_train only",
+    "reference_used_for_scaler_fit": false,
+    "validation_used_for_scaler_fit": false,
+    "test_used_for_scaler_fit": false
+  },
+  "primary_model_planned": {
+    "algorithm": "OneClassSVM",
+    "status": "not_trained",
+    "configuration_to_freeze_when_training_starts": {
+      "kernel": "rbf",
+      "gamma": "scale",
+      "nu": 0.05,
+      "shrinking": true,
+      "cache_size_mb": 512
+    },
+    "hyperparameter_tuning_on_test": false
+  },
+  "threshold": {
+    "status": "not_calibrated",
+    "rule": "P95 of normal validation anomaly scores",
+    "target_validation_fpr": 0.05,
+    "attack_used_for_calibration": false,
+    "prediction_rule": "anomaly_score > threshold"
+  },
+  "evaluation": {
+    "normal_before_attack": "report test_normal FPR",
+    "future_controlled_real_attack": [
+      "precision",
+      "recall",
+      "F1",
+      "ROC-AUC",
+      "PR-AUC",
+      "FPR",
+      "FNR",
+      "confusion matrix",
+      "model inference time",
+      "end-to-end detection latency separately"
+    ],
+    "synthetic_mendeley_attack_as_final_desktop_test": false
+  },
+  "safety_semantics": {
+    "unknown_context": "insufficient_history_not_attack",
+    "model_output": "anomaly/suspicion level, not Evil Twin confirmation"
+  },
+  "blocking_condition": "Do not train or calibrate until at least five real runtime-ready Windows normal sessions have been imported and the frozen reference has been materialized.",
+  "phase_4_step_21": {
+    "training_module": "desktop.windows.train_desktop_ocsvm",
+    "status": "implemented_not_executed_on_real_data",
+    "score": "-decision_function",
+    "threshold": "P95 normal validation",
+    "test_normal_metric": "FPR",
+    "real_model_trained": false,
+    "real_attack_seen": false
+  },
+  "phase_4_step_52_review": {
+    "implementation_review": "completed_before_real_windows_collection",
+    "normal_collection_cohort": {
+      "environment_count": 1,
+      "minimum_sessions": 5,
+      "recommended_sessions": 9,
+      "clear_identifiers": false
+    },
+    "pre_freeze_reference_coverage": {
+      "minimum_eligible_rate_each_split": 0.7,
+      "splits": [
+        "model_train",
+        "validation",
+        "test_normal"
+      ]
+    },
+    "controlled_attack": {
+      "same_environment_as_normal_cohort": true,
+      "minimum_eligible_rate": 0.7,
+      "evaluation_only": true
+    },
+    "ssid_hash_contract": "canonical UTF-8 display text with replacement is hashed identically in raw collection and runtime inference"
+  }
+}

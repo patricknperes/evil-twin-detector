@@ -1,0 +1,30 @@
+{
+  "phase": 4,
+  "step": 47,
+  "title": "Frontend dependency-resolved toolchain validation",
+  "status": "implementation_hardened_dependency_validation_blocked_by_registry",
+  "frontend_version": "0.9.0-step47",
+  "source_fixes": [
+    "SuspicionBadge callers use level prop",
+    "ScanErrorPanel maps scan_in_progress",
+    "diagnosticsSupportBundle API method connected",
+    "NetworkObservation includes host_timestamp_100ns",
+    "HistoryPage/ModelPage import ReactNode type",
+    "VITE_API_BASE_URL declared in ImportMetaEnv",
+    "typecheck uses tsc -b --force",
+    "tsconfig.node noEmit true"
+  ],
+  "current_environment": {
+    "npm_registry": "unreachable_eai_again",
+    "npm_install": "blocked",
+    "vitest": "not_executed",
+    "dependency_resolved_typecheck": "not_executed",
+    "vite_build": "not_executed",
+    "offline_auxiliary_tsc_with_temporary_stubs": "passed"
+  },
+  "temporary_stubs_committed": false,
+  "material_ui": false,
+  "tailwind_css": true,
+  "scientific_artifacts_mutated": false,
+  "next": "Run dependency-resolved frontend validation when npm registry access is available, then continue to Windows packaging/runtime execution gates."
+}

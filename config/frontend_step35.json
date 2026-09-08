@@ -1,0 +1,23 @@
+{
+  "phase": 4,
+  "step": 35,
+  "title": "Model status and scientific artifact audit page",
+  "status": "model_page_ready",
+  "route": "/model",
+  "endpoints": [
+    "GET /model",
+    "GET /history/models",
+    "GET /history/models/{model_version_id}"
+  ],
+  "runtime_artifacts": [
+    "frozen normal reference",
+    "StandardScaler",
+    "One-Class SVM",
+    "threshold"
+  ],
+  "scientific_mutation_controls": false,
+  "tailwind_css": true,
+  "material_ui": false,
+  "npm_install_build": "deferred",
+  "next": "Implement complete Settings page"
+}

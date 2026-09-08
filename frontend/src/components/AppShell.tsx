@@ -1,0 +1,10 @@
+import { Activity, BarChart3, History, Radar, Settings, ShieldCheck, Wifi, Wrench } from "lucide-react";
+import { NavLink, Outlet } from "react-router-dom";
+import { RuntimeConnectionBanner } from "./RuntimeConnectionBanner";
+import { RuntimeStatusPanel } from "./RuntimeStatusPanel";
+
+const navigation=[
+ {to:"/",label:"Visão geral",icon:BarChart3},{to:"/scan",label:"Escanear redes",icon:Radar},{to:"/networks",label:"Redes observadas",icon:Wifi},{to:"/history",label:"Histórico",icon:History},{to:"/model",label:"Modelo",icon:Activity},{to:"/diagnostics",label:"Diagnóstico",icon:Wrench},{to:"/settings",label:"Configurações",icon:Settings}
+];
+
+export function AppShell(){return <div className="min-h-screen bg-slate-50"><aside className="fixed inset-y-0 left-0 z-20 w-64 border-r border-slate-200 bg-white"><div className="flex h-full flex-col"><div className="flex h-20 items-center gap-3 border-b border-slate-100 px-6"><div className="grid size-10 place-items-center rounded-xl bg-slate-950 text-white"><ShieldCheck size={21}/></div><div><p className="font-semibold tracking-tight text-slate-950">Evil Twin Detector</p><p className="text-xs text-slate-400">Desktop research prototype</p></div></div><nav className="flex-1 space-y-1 overflow-y-auto p-4">{navigation.map(({to,label,icon:Icon})=><NavLink key={to} to={to} end={to==="/"} className={({isActive})=>["flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",isActive?"bg-slate-950 text-white":"text-slate-600 hover:bg-slate-100 hover:text-slate-950"].join(" ")}><Icon size={18}/>{label}</NavLink>)}</nav><div className="space-y-3 border-t border-slate-100 p-4"><RuntimeStatusPanel/><div className="rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-500"><p className="font-medium text-slate-700">Interpretação</p><p className="mt-1">O sistema indica anomalias e níveis de suspeita. Não confirma um ataque Evil Twin.</p></div></div></div></aside><main className="min-h-screen pl-64"><div className="mx-auto max-w-[1600px] p-8"><RuntimeConnectionBanner/><Outlet/></div></main></div>;}

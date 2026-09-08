@@ -1,0 +1,2 @@
+import { PageHeader } from "../components/PageHeader";
+export function PlaceholderPage({title,description,next}:{title:string;description:string;next:string}){ return <div className="space-y-7"><PageHeader title={title} description={description}/><section className="panel p-8"><p className="text-sm font-medium text-slate-700">Estrutura de navegação pronta.</p><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">{next}</p></section></div>; }

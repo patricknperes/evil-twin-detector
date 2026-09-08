@@ -1,0 +1,127 @@
+{
+  "phase": 4,
+  "step": 38,
+  "name": "local_fastapi_backend_v1",
+  "status": "application_settings_api_ready",
+  "host": "127.0.0.1",
+  "port": 8765,
+  "native_scanner_initialization": "lazy_on_first_scan",
+  "persistence": "SQLite + SQLAlchemy 2.x",
+  "endpoints": {
+    "GET /health": "service/scanner/model state",
+    "POST /scan": "Native Wi-Fi scan",
+    "GET /networks": "latest observed networks",
+    "GET /model": "model artifact readiness"
+  },
+  "model_inference": "frozen desktop_candidate_v1 when artifacts exist",
+  "database": "not_enabled_step24",
+  "next": "Backend foundation complete enough to begin React/Electron application shell.",
+  "schema_management": "Alembic",
+  "database_path": "data/app/evil_twin_detector.db",
+  "database_endpoint": "GET /database",
+  "clear_ssid_bssid_persisted": false,
+  "tables": [
+    "scan_session",
+    "network_observation",
+    "network_features",
+    "detection",
+    "model_version"
+  ],
+  "reference_path": "data/processed/desktop_candidate_v1/desktop_normal_reference.json",
+  "inference_pipeline": [
+    "scan",
+    "hash identifiers",
+    "frozen reference",
+    "desktop features",
+    "frozen scaler",
+    "frozen OCSVM",
+    "frozen threshold",
+    "persist feature/detection/model version"
+  ],
+  "unknown_context": "insufficient_history",
+  "suspicion_levels": {
+    "normal_side": "low",
+    "anomaly_side": "high",
+    "unknown": "unavailable"
+  },
+  "history_endpoints": [
+    "GET /history/scans",
+    "GET /history/scans/{scan_id}",
+    "GET /history/scans/{scan_id}/observations",
+    "GET /history/detections",
+    "GET /history/detections/{detection_id}",
+    "GET /history/models",
+    "GET /history/models/{model_version_id}"
+  ],
+  "history_clear_ssid_bssid": false,
+  "history_identifiers": [
+    "network_id",
+    "ssid_hash",
+    "bssid_hash",
+    "interface_guid_hash"
+  ],
+  "history_default_order": "newest first",
+  "history_pagination": true,
+  "dashboard_endpoints": [
+    "GET /dashboard/overview",
+    "GET /dashboard/trends"
+  ],
+  "dashboard_metrics": [
+    "scan_count",
+    "observation_count",
+    "unique_network_count",
+    "feature_count",
+    "detection_count",
+    "anomaly_count",
+    "normal_count",
+    "insufficient_history_count",
+    "model_version_count",
+    "analysis_coverage_rate",
+    "anomaly_rate_among_decided"
+  ],
+  "dashboard_suspicion_distribution": [
+    "low",
+    "medium",
+    "high",
+    "unavailable"
+  ],
+  "dashboard_recent_data": [
+    "recent_scans",
+    "recent_detections",
+    "active_model"
+  ],
+  "dashboard_history_clear_identifiers": false,
+  "settings_endpoints": [
+    "GET /settings",
+    "PATCH /settings",
+    "POST /settings/reset"
+  ],
+  "settings_persistence": "application_settings SQLite table",
+  "scan_uses_persisted_defaults": true,
+  "dashboard_uses_persisted_defaults": true,
+  "history_uses_persisted_defaults": true,
+  "scientific_artifacts_editable_via_settings": false,
+  "backend_version": "1.4.0-step52",
+  "database_path_production_default": "%LOCALAPPDATA%/EvilTwinDetector/evil_twin_detector.db",
+  "packaged_resource_root": "PyInstaller sys._MEIPASS",
+  "scan_serialization": {
+    "enabled": true,
+    "conflict_status": 409,
+    "conflict_code": "scan_in_progress"
+  },
+  "scanner_runtime_status": [
+    "not_initialized",
+    "ready",
+    "location_access_denied",
+    "unsupported_platform",
+    "error"
+  ],
+  "diagnostics_endpoint": "/diagnostics/support-bundle",
+  "runtime_artifact_lineage": {
+    "schema_version": "desktop_artifact_lineage_v1",
+    "threshold_schema": "desktop_threshold_v2",
+    "requires_shared_split_digest": true,
+    "requires_shared_scientific_freeze_sha256": true,
+    "binds_reference_scaler_model_by_sha256": true
+  }
+}

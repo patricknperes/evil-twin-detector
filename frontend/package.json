@@ -1,0 +1,244 @@
+{
+  "name": "evil-twin-detector-desktop",
+  "private": true,
+  "version": "1.2.0-step52",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --force --pretty false",
+    "test": "vitest run",
+    "electron": "electron .",
+    "electron:dev": "concurrently -k \"vite\" \"wait-on http://127.0.0.1:5173 && electron .\"",
+    "electron:check": "node --check electron/main.cjs && node --check electron/preload.cjs && node --check electron/backend-manager.cjs && node --check electron/auto-scan-scheduler.cjs",
+    "build:web": "tsc -b && vite build",
+    "dist:win": "electron-builder --win nsis",
+    "dist:win:dir": "electron-builder --win dir",
+    "scheduler:check": "node tests/auto_scan_scheduler_step40.cjs",
+    "validate": "npm test && npm run typecheck && npm run build:web",
+    "integration:check": "node tests/desktop_integration_step48.cjs",
+    "e2e": "playwright test -c playwright.config.ts",
+    "e2e:headed": "playwright test -c playwright.config.ts --headed"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.1",
+    "recharts": "^2.15.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@tailwindcss/vite": "^4.1.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.3",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.0",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "jsdom": "30.0.1",
+    "playwright": "^1.49.1",
+    "tailwindcss": "^4.1.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.0.5",
+    "vitest": "3.2.4",
+    "wait-on": "^8.0.1"
+  },
+  "evilTwinBackend": {
+    "development": {
+      "mode": "python_module",
+      "module": "backend",
+      "projectRoot": ".."
+    },
+    "production": {
+      "expectedExecutable": "resources/backend/evil-twin-backend.exe",
+      "electronResourceDestination": "backend/evil-twin-backend.exe",
+      "builtBy": "../scripts/build_backend_windows.ps1"
+    },
+    "url": "http://127.0.0.1:8765",
+    "startupTimeoutMs": 15000,
+    "database": {
+      "productionLocation": "%LOCALAPPDATA%/EvilTwinDetector/evil_twin_detector.db",
+      "overrideEnvironment": "EVIL_TWIN_DB_URL"
+    }
+  },
+  "build": {
+    "appId": "br.edu.ufop.eviltwindetector",
+    "productName": "Evil Twin Detector",
+    "asar": true,
+    "directories": {
+      "output": "release",
+      "buildResources": "resources/build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/backend/evil-twin-backend.exe",
+        "to": "backend/evil-twin-backend.exe"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",
+      "executableName": "EvilTwinDetector"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Evil Twin Detector",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true
+    }
+  },
+  "evilTwinDesktopPackaging": {
+    "step": 51,
+    "platform": "win32",
+    "arch": "x64",
+    "installer": "NSIS",
+    "backendExtraResource": "backend/evil-twin-backend.exe",
+    "backendSource": "resources/backend/evil-twin-backend.exe",
+    "databaseLocation": "%LOCALAPPDATA%/EvilTwinDetector/evil_twin_detector.db",
+    "preserveDatabaseOnUninstall": true,
+    "codeSigningConfigured": false,
+    "installerBuilt": false,
+    "releasePreflight": "../scripts/validate_release_preflight.ps1",
+    "releasePreflightSchema": "desktop_release_preflight_step51_v1",
+    "requiresScientificFinalResults": true,
+    "requiresFrontendToolchainValidation": true,
+    "requiresRendererElectronE2E": true,
+    "powershellCompatibility": [
+      "Windows PowerShell 5.1",
+      "PowerShell 7+"
+    ],
+    "releaseManifest": "../reports/release/release_manifest_step51.json"
+  },
+  "evilTwinAutoScan": {
+    "step": 40,
+    "settingsEndpoint": "/settings",
+    "scanEndpoint": "/scan",
+    "minimumIntervalSeconds": 10,
+    "disabledSettingsPollSeconds": 5,
+    "notificationPolicy": "new-high-transition-only",
+    "notificationExposesSsidOrBssid": false,
+    "backendScanSerialization": true,
+    "scientificArtifactsMutable": false
+  },
+  "evilTwinViewSynchronization": {
+    "step": 41,
+    "event": "desktop:auto-scan-completed",
+    "eventDriven": true,
+    "dashboardPolling": false,
+    "networksPolling": false,
+    "fullRendererReload": false,
+    "backgroundRefresh": true,
+    "eventCoalescing": true,
+    "preservesNetworkFilters": true,
+    "preservesExpandedNetworksWhenStillPresent": true,
+    "eventContainsClearWifiIdentifiers": false
+  },
+  "evilTwinRuntimeStatus": {
+    "step": 42,
+    "globalProvider": true,
+    "backendConnectionStates": [
+      "connecting",
+      "connected",
+      "reconnecting",
+      "disconnected"
+    ],
+    "connectedRefreshUsesSetting": "frontend_refresh_seconds",
+    "disconnectedRetrySeconds": 2,
+    "disconnectedAfterConsecutiveFailures": 3,
+    "refreshOnWindowFocus": true,
+    "refreshOnAutomaticScanEvent": true,
+    "statusTargets": [
+      "backend",
+      "scanner",
+      "model",
+      "scheduler"
+    ],
+    "settingsOwnSchedulerPollingRemoved": true,
+    "fullRendererReload": false
+  },
+  "evilTwinDiagnostics": {
+    "step": 43,
+    "route": "/diagnostics",
+    "backendEndpoint": "/diagnostics/support-bundle",
+    "format": "JSON",
+    "clearWifiIdentifiers": false,
+    "observationRecords": false,
+    "filesystemPaths": false,
+    "environmentVariables": false,
+    "automaticUpload": false
+  },
+  "evilTwinHistoryModelSync": {
+    "step": 43,
+    "event": "desktop:auto-scan-completed",
+    "history": true,
+    "model": true,
+    "backendRecovery": true,
+    "polling": false,
+    "rendererReload": false
+  },
+  "evilTwinFrontendToolchain": {
+    "step": 47,
+    "dependencyResolvedValidation": "requires npm registry or installed node_modules",
+    "sourceTypecheckWithTemporaryStubs": "development-only fallback; not equivalent to dependency-resolved validation",
+    "validationReport": "../reports/frontend/frontend_toolchain_step47.json",
+    "vitestRequired": true,
+    "typecheckRequired": true,
+    "viteBuildRequired": true,
+    "packageLockRequiredAfterSuccessfulInstall": true
+  },
+  "evilTwinDesktopIntegration": {
+    "step": 48,
+    "pythonBackendScenarios": true,
+    "electronSchedulerRealHttpScenario": true,
+    "backendOfflineRecovery": true,
+    "scannerUnsupported": true,
+    "locationAccessDenied": true,
+    "manualScanModelNotReady": true,
+    "realWindowsNativeWifiExecuted": false,
+    "realScientificBundleLoaded": false,
+    "dependencyResolvedRendererE2EExecuted": false
+  },
+  "evilTwinRendererE2E": {
+    "step": 49,
+    "framework": "Playwright Electron",
+    "testMatch": "e2e/**/*.e2e.ts",
+    "fakeBackendPort": 18765,
+    "rendererPort": 15173,
+    "realWindowsNativeWifi": false,
+    "realScientificArtifacts": false,
+    "osNotifications": false,
+    "productionE2EIpcAvailable": false,
+    "dependencyResolvedExecutionRequired": true,
+    "report": "../reports/frontend/renderer_e2e_step49.json"
+  },
+  "evilTwinImplementationFreeze": {
+    "step": 52,
+    "snapshot": "../reports/implementation/implementation_snapshot_step52.json",
+    "collectionReadiness": "../scripts/check_windows_collection_readiness.ps1",
+    "windowsCollectionProtocol": "../docs/windows_data_collection_runbook_step52.md",
+    "realWindowsCollectionStarted": false
+  }
+}

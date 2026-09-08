@@ -1,0 +1,324 @@
+{
+  "schema_version": "desktop_normal_reference_v1",
+  "status": "frozen",
+  "ssid_profile_count": 16,
+  "bssid_mapping_count": 21,
+  "ssid_profiles": {
+    "39152c95ef68b04a3996a37f8b3f2573873359ab76b6ac664b8496f88986983e": {
+      "bssid_hashes": [
+        "8ad2bf9c7e42dd2ddc4105d962388271550d996ed17251dbc24160334ccce62c"
+      ],
+      "bssid_count": 1,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 12,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "6a441eb2c1261a3680e7881cd25f3f1363773da8de25b4a2c7be8005065cda6b": {
+      "bssid_hashes": [
+        "b7f41be6c7a952eefc2c77e5e72b43511d729dbae482847c71cfd8ba9cccbc84",
+        "f9aea08e52f41c814bef59950d0140c1b07bd7972425fdb37050d055eaaf1c8e"
+      ],
+      "bssid_count": 2,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 60,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "843654aa61af469e868e9658b2f02f799710d6934f581fb36cf0bd27059bc63e": {
+      "bssid_hashes": [
+        "e84cfb28d8190c504baa1a9b23747021b1f781c31ac62792f5e469285d94d846",
+        "ea5f504045d40675beb581d9c6d94a8a8387366360ed925893202c294dfac2ca"
+      ],
+      "bssid_count": 2,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 49,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "8804cb944994012db0e4f127762dd65ed1479bd144a5a9ffdbd391352da0ed5e": {
+      "bssid_hashes": [
+        "c6359eff3e0b15636cdce528bf0d7459871b47f9002efa98a1961ae8489546dc"
+      ],
+      "bssid_count": 1,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 29,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "89b804a4350e986afa49bbcee8fc8b156d5fc85b2433828e152a95eb8e4e8e82": {
+      "bssid_hashes": [
+        "7d064546bd6277201aa08eedf61b500c4990b6cbde964ffe362c454aa79a98bb"
+      ],
+      "bssid_count": 1,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 12,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "8a757e09d2cbb6dc48fa073a677bd2d73c9e654ab05e84677f4fcd20be00eacb": {
+      "bssid_hashes": [
+        "bdc3d8c90ee7c6cee029f377bb1aee17851abeec0ef9f41bc33f168f33c5938c"
+      ],
+      "bssid_count": 1,
+      "security_types": [
+        "OPEN"
+      ],
+      "security_strength_median": 0.0,
+      "reference_rows": 29,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "8fe766ece22b884b2f50632df81f057ddf7f54ee73cb053675d70e49a67c3bcc": {
+      "bssid_hashes": [
+        "82b4941cd8a63236517f20e30fa20d8759726b77d1f6ef18fb998e347406d590"
+      ],
+      "bssid_count": 1,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 30,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "9b211b85f753e19081d2ce6907b47d9b4a0724933e699975134f16cf36baa33e": {
+      "bssid_hashes": [
+        "2fb6ab2c9204f09410d27646c0dea3f69fdf65040ec7cde363275d0c96e993a2",
+        "9f7b3eddd8bc89b58219223709668f8d8e103cbcf6134bb4f8bfae9ea25ec487"
+      ],
+      "bssid_count": 2,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 60,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "9b43ae33a97a5ef8ca47df88b87d2a781c2f15f9dbb51ea7ed65d1e19c967774": {
+      "bssid_hashes": [
+        "86560af26273f0277f7d59fbfb4e05609db39453f1b9bb12e4aefd4afc4ec37e"
+      ],
+      "bssid_count": 1,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 30,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "b58343951b9fa5977ec858f3c3cf14506586c92db4b4ee206666783c4962203c": {
+      "bssid_hashes": [
+        "525d201b71ab068f3ff59c55b94260cca6f1ab3eac016b4ba80d904b73517a14"
+      ],
+      "bssid_count": 1,
+      "security_types": [
+        "OPEN"
+      ],
+      "security_strength_median": 0.0,
+      "reference_rows": 30,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "c2f69e257e093d46cd413abe09024d8b602357572158ef3e6e4c8a2fb37534a9": {
+      "bssid_hashes": [
+        "4b60ed3e6c227ee95fe032d0738c6d20f6dad5fb3a407685118a9d53cc621ae4"
+      ],
+      "bssid_count": 1,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 15,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "cbe32336ede0193017c6a4f482a7956637dfc358fa42d38b4b43f8df4b7394a0": {
+      "bssid_hashes": [
+        "92171c1ea2a5ad16dcff882c242e057b41b7de35a5b241d8a32d82218e70de03"
+      ],
+      "bssid_count": 1,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 12,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "cf2b34662bff53677084663819d687f4770aa4c56f6f3d478b26d5fcf19efe77": {
+      "bssid_hashes": [
+        "72928391ebe39ab0f43ab27b3a97fdd7a21e0ca34099d1ce58d53076239ba776"
+      ],
+      "bssid_count": 1,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 19,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "d2062e3395ac66e6d7ef5f920fa0ed91560dfe8b8d3f898d90ec01bb0073c7b1": {
+      "bssid_hashes": [
+        "1a88734628d347c8a44d7374ac9ec3a00e1d586d7c7e3b7d7d17937572e78901",
+        "407be64574bf146e1405110e6e15e308951532e11a3f64e7a17e28d759f3f694"
+      ],
+      "bssid_count": 2,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 60,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "d73093e618b96b764e60837a1c6e75d6625e6914f2be096aa9010b92c23047d1": {
+      "bssid_hashes": [
+        "11fc1b5b767b502e37dba45b558c71f5f34d5eace38bb719a4ca481ba593e9d5",
+        "702601c39957ed9b6e442f53af6c2b0e65d29a85fd203226dcd6f3cf5c8a523f"
+      ],
+      "bssid_count": 2,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 59,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    },
+    "e2b3da7ba8e49c47747c3112d725a03722bb92d18746e16fa00e8dde7d9f2934": {
+      "bssid_hashes": [
+        "a4e791f8eb079ad9002f9956349fe9d69cc289857853ae2fb37a95f521efd1c5"
+      ],
+      "bssid_count": 1,
+      "security_types": [
+        "WPA2_OR_NEWER"
+      ],
+      "security_strength_median": 3.0,
+      "reference_rows": 27,
+      "reference_sessions": [
+        "win-normal-lab-principal-20260901T170828Z-ea9a67"
+      ]
+    }
+  },
+  "bssid_to_ssids": {
+    "8ad2bf9c7e42dd2ddc4105d962388271550d996ed17251dbc24160334ccce62c": [
+      "39152c95ef68b04a3996a37f8b3f2573873359ab76b6ac664b8496f88986983e"
+    ],
+    "b7f41be6c7a952eefc2c77e5e72b43511d729dbae482847c71cfd8ba9cccbc84": [
+      "6a441eb2c1261a3680e7881cd25f3f1363773da8de25b4a2c7be8005065cda6b"
+    ],
+    "f9aea08e52f41c814bef59950d0140c1b07bd7972425fdb37050d055eaaf1c8e": [
+      "6a441eb2c1261a3680e7881cd25f3f1363773da8de25b4a2c7be8005065cda6b"
+    ],
+    "e84cfb28d8190c504baa1a9b23747021b1f781c31ac62792f5e469285d94d846": [
+      "843654aa61af469e868e9658b2f02f799710d6934f581fb36cf0bd27059bc63e"
+    ],
+    "ea5f504045d40675beb581d9c6d94a8a8387366360ed925893202c294dfac2ca": [
+      "843654aa61af469e868e9658b2f02f799710d6934f581fb36cf0bd27059bc63e"
+    ],
+    "c6359eff3e0b15636cdce528bf0d7459871b47f9002efa98a1961ae8489546dc": [
+      "8804cb944994012db0e4f127762dd65ed1479bd144a5a9ffdbd391352da0ed5e"
+    ],
+    "7d064546bd6277201aa08eedf61b500c4990b6cbde964ffe362c454aa79a98bb": [
+      "89b804a4350e986afa49bbcee8fc8b156d5fc85b2433828e152a95eb8e4e8e82"
+    ],
+    "bdc3d8c90ee7c6cee029f377bb1aee17851abeec0ef9f41bc33f168f33c5938c": [
+      "8a757e09d2cbb6dc48fa073a677bd2d73c9e654ab05e84677f4fcd20be00eacb"
+    ],
+    "82b4941cd8a63236517f20e30fa20d8759726b77d1f6ef18fb998e347406d590": [
+      "8fe766ece22b884b2f50632df81f057ddf7f54ee73cb053675d70e49a67c3bcc"
+    ],
+    "2fb6ab2c9204f09410d27646c0dea3f69fdf65040ec7cde363275d0c96e993a2": [
+      "9b211b85f753e19081d2ce6907b47d9b4a0724933e699975134f16cf36baa33e"
+    ],
+    "9f7b3eddd8bc89b58219223709668f8d8e103cbcf6134bb4f8bfae9ea25ec487": [
+      "9b211b85f753e19081d2ce6907b47d9b4a0724933e699975134f16cf36baa33e"
+    ],
+    "86560af26273f0277f7d59fbfb4e05609db39453f1b9bb12e4aefd4afc4ec37e": [
+      "9b43ae33a97a5ef8ca47df88b87d2a781c2f15f9dbb51ea7ed65d1e19c967774"
+    ],
+    "525d201b71ab068f3ff59c55b94260cca6f1ab3eac016b4ba80d904b73517a14": [
+      "b58343951b9fa5977ec858f3c3cf14506586c92db4b4ee206666783c4962203c"
+    ],
+    "4b60ed3e6c227ee95fe032d0738c6d20f6dad5fb3a407685118a9d53cc621ae4": [
+      "c2f69e257e093d46cd413abe09024d8b602357572158ef3e6e4c8a2fb37534a9"
+    ],
+    "92171c1ea2a5ad16dcff882c242e057b41b7de35a5b241d8a32d82218e70de03": [
+      "cbe32336ede0193017c6a4f482a7956637dfc358fa42d38b4b43f8df4b7394a0"
+    ],
+    "72928391ebe39ab0f43ab27b3a97fdd7a21e0ca34099d1ce58d53076239ba776": [
+      "cf2b34662bff53677084663819d687f4770aa4c56f6f3d478b26d5fcf19efe77"
+    ],
+    "1a88734628d347c8a44d7374ac9ec3a00e1d586d7c7e3b7d7d17937572e78901": [
+      "d2062e3395ac66e6d7ef5f920fa0ed91560dfe8b8d3f898d90ec01bb0073c7b1"
+    ],
+    "407be64574bf146e1405110e6e15e308951532e11a3f64e7a17e28d759f3f694": [
+      "d2062e3395ac66e6d7ef5f920fa0ed91560dfe8b8d3f898d90ec01bb0073c7b1"
+    ],
+    "11fc1b5b767b502e37dba45b558c71f5f34d5eace38bb719a4ca481ba593e9d5": [
+      "d73093e618b96b764e60837a1c6e75d6625e6914f2be096aa9010b92c23047d1"
+    ],
+    "702601c39957ed9b6e442f53af6c2b0e65d29a85fd203226dcd6f3cf5c8a523f": [
+      "d73093e618b96b764e60837a1c6e75d6625e6914f2be096aa9010b92c23047d1"
+    ],
+    "a4e791f8eb079ad9002f9956349fe9d69cc289857853ae2fb37a95f521efd1c5": [
+      "e2b3da7ba8e49c47747c3112d725a03722bb92d18746e16fa00e8dde7d9f2934"
+    ]
+  },
+  "scientific_rules": [
+    "Built from reference split only.",
+    "Model train, validation and test do not update this reference.",
+    "No clear SSID/BSSID stored.",
+    "Unknown context is not automatically classified as attack."
+  ],
+  "normal_cohort_environments": [
+    "lab-principal"
+  ],
+  "normal_cohort_environment": "lab-principal",
+  "reference_session_ids": [
+    "win-normal-lab-principal-20260901T170828Z-ea9a67"
+  ],
+  "reference_source_hashes": {
+    "win-normal-lab-principal-20260901T170828Z-ea9a67": {
+      "source_scans_sha256": "13ba0c6a0b5af27c6b859712b19edf635f67e6bec83a5ee047ec93d97782983d",
+      "observations_sha256": "e01f138649fd8c7b227c772cbe1e6261f1363f5d913ad106855fa4f706218de2",
+      "content_fingerprint": "b928d4883dd959cb34e29808e965381c373c65d1b5682652d4bf60cdb60cbdb4"
+    }
+  },
+  "split_digest": "a5e481a0067cf72ead32cf5b85c1a3eab5bee710f6e74f0856ddb0e62de88d15",
+  "scientific_freeze_sha256": "866df41f7daf8249287da770e0a67229247e413b11dc08a4b36101fa411f1010"
+}

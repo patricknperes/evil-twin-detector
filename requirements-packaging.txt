@@ -1,0 +1,2 @@
+-r requirements-backend.txt
+pyinstaller>=6.10

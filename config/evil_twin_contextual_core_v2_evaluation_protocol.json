@@ -1,0 +1,52 @@
+{
+  "protocol_version": "2.0.0",
+  "phase": 4,
+  "step": 14,
+  "track": "TRACK_E_EVIL_TWIN_CONTEXT",
+  "profile": "contextual_core_v2",
+  "status": "primary_contextual_candidate_pending_real_validation",
+  "features": [
+    "ssid_bssid_count",
+    "bssid_changed",
+    "security_changed",
+    "security_strength_delta",
+    "is_hidden"
+  ],
+  "removed_from_v1": {
+    "channel_changed": "Removed because v1 used capture Channel; Step 13 deprecated it for primary AP-channel semantics."
+  },
+  "data": {
+    "model_train_normal": 7499,
+    "validation_normal": 3757,
+    "test_normal": 3939,
+    "test_attack_synthetic": 28543
+  },
+  "coverage": "Unchanged from contextual v1 because v2 removes a feature and does not add an eligibility requirement.",
+  "scaler": {
+    "type": "StandardScaler",
+    "fit_split": "model_train_normal",
+    "artifact": "ml/models/preprocessing/evil_twin_contextual_core_v2_scaler.joblib",
+    "attack_used_for_fit": false
+  },
+  "threshold": {
+    "calibration_split": "validation_normal",
+    "method": "P95 normal anomaly score",
+    "target_false_positive_rate": 0.05,
+    "attack_used_for_threshold": false
+  },
+  "frozen_test": {
+    "normal": "test_normal",
+    "attack": "test_attack_synthetic",
+    "threshold_refit_on_test": false
+  },
+  "advertised_channel_changed": {
+    "status": "optional_experimental_real_world_candidate",
+    "included_in_core_v2": false,
+    "reason": "Synthetic channel_shift does not modify DSChannel, so it cannot validate this feature."
+  },
+  "protocol_specific_features": {
+    "tsf_reference_monotonic_violation": "ablation_only",
+    "bssid_local_admin_flag": "ablation_only",
+    "capture_advertised_mismatch": "rejected"
+  }
+}

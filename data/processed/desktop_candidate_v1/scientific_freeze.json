@@ -1,0 +1,76 @@
+{
+  "schema_version": "desktop_scientific_freeze_v1",
+  "status": "frozen",
+  "seed": 20260831,
+  "split_digest": "a5e481a0067cf72ead32cf5b85c1a3eab5bee710f6e74f0856ddb0e62de88d15",
+  "split_plan_file_sha256": "1647e9c3850dd29bb0fa0d6e049520e9479a30935d50d21f0164e6166b899a14",
+  "frozen_session_ids": [
+    "win-normal-lab-principal-20260901T154609Z-78ad52",
+    "win-normal-lab-principal-20260901T155632Z-0d1fe7",
+    "win-normal-lab-principal-20260901T160649Z-17615d",
+    "win-normal-lab-principal-20260901T161506Z-2a88fb",
+    "win-normal-lab-principal-20260901T162855Z-0a5337",
+    "win-normal-lab-principal-20260901T164532Z-de57cf",
+    "win-normal-lab-principal-20260901T165902Z-3af4ce",
+    "win-normal-lab-principal-20260901T170828Z-ea9a67",
+    "win-normal-lab-principal-20260901T171520Z-f54209"
+  ],
+  "source_hashes": {
+    "win-normal-lab-principal-20260901T170828Z-ea9a67": {
+      "source_scans_sha256": "13ba0c6a0b5af27c6b859712b19edf635f67e6bec83a5ee047ec93d97782983d",
+      "observations_sha256": "e01f138649fd8c7b227c772cbe1e6261f1363f5d913ad106855fa4f706218de2",
+      "content_fingerprint": "b928d4883dd959cb34e29808e965381c373c65d1b5682652d4bf60cdb60cbdb4"
+    },
+    "win-normal-lab-principal-20260901T165902Z-3af4ce": {
+      "source_scans_sha256": "ce9a42cb1a60eb012e60260488d33779b1600ff401dc15821e1e35f185fd780b",
+      "observations_sha256": "8a3b9be6854fa461704b61c9c30a131111b0d868e4222a3155145263f88d1e7c",
+      "content_fingerprint": "79902a5346af0194bef4d0a10ec9a653bdb6cec5bbcf4deaaae3b1d0098143b2"
+    },
+    "win-normal-lab-principal-20260901T154609Z-78ad52": {
+      "source_scans_sha256": "4ce33a2865200af6ec571946b32959426ad3bd9f0c2330245cc6425182b9e0a2",
+      "observations_sha256": "668d7cb55d98062899813b15b1e76138ea41968c31c5ad987f3da347de94525d",
+      "content_fingerprint": "5ccb4875ae354bbc94082236c27b10005663685a4a0581fbb0feb1322b396239"
+    },
+    "win-normal-lab-principal-20260901T164532Z-de57cf": {
+      "source_scans_sha256": "29b74d73413bb98f3cb701abd7fa4da15fe640f7130bfb72f199ce237b9587d1",
+      "observations_sha256": "3e9fa2dca28e8a17c3b7022887608197861a92b43960390ea4cad7bb314392af",
+      "content_fingerprint": "5a492924a59d2a6090c0a1bde2005b479062c7382549ab089a106aedde53bd46"
+    },
+    "win-normal-lab-principal-20260901T155632Z-0d1fe7": {
+      "source_scans_sha256": "fd400fae3dff8f61ab975bc867b8bb5ca3106bd3a6649319e450879ecb256a43",
+      "observations_sha256": "02b5cb1bfbdbef5b49bc4fda6d51a20f374efdfd81793b523d8595cca45bdcd6",
+      "content_fingerprint": "f3543a6839089ae689f7ea829517063be204af23d3e172ac377831267bd3faaf"
+    },
+    "win-normal-lab-principal-20260901T161506Z-2a88fb": {
+      "source_scans_sha256": "6d73871217b36c58286572b7518480a2dc0939ce1797476528692eb6719e4c68",
+      "observations_sha256": "7274805303a56901bc192e0de9553e2c6f92dbb6f880cc163c286b6e7d0f9960",
+      "content_fingerprint": "2073edab4029c534450540012bbaf2dd4be4af78bd1c4d72ca80ae1ccbfea0c2"
+    },
+    "win-normal-lab-principal-20260901T162855Z-0a5337": {
+      "source_scans_sha256": "8dee315493856b0c908facd2999ab7caa596ff4b52b1c9a4b3f4c4f71b436278",
+      "observations_sha256": "5f82d3a051988363dfeff5a560ec7a120c81998fddbb218ca60e8f15dde979f6",
+      "content_fingerprint": "43f2c762e6d3144bfd232f483eb269bc3a9bbd558e2c9d9befa8b532113650cb"
+    },
+    "win-normal-lab-principal-20260901T171520Z-f54209": {
+      "source_scans_sha256": "29c3dd39e29fede2f9c545e80cbad67c9e17adeee8271457ab52dd77e7990298",
+      "observations_sha256": "3b941387882c323c0ae08fbe15d520d009d919750e4f6855354287271618f421",
+      "content_fingerprint": "b40a378e4ee23d93d6fb94f2336467879cf083a6d3080bd6637437f003199bdb"
+    },
+    "win-normal-lab-principal-20260901T160649Z-17615d": {
+      "source_scans_sha256": "6a35f738ec1ed7961ae7f1c1273cb895d077b3de606235c48c1b257d479f793b",
+      "observations_sha256": "c95a42fb332d8b98e4a86e427a424860fc6d5d53bd0b12d842c19558984c6311",
+      "content_fingerprint": "a50eabe7ae277e5330f2c9fe5f4e93dc950c7bdf8f8da7927e2006389877fc6c"
+    }
+  },
+  "normal_cohort_environments": [
+    "lab-principal"
+  ],
+  "normal_cohort_environment": "lab-principal",
+  "scientific_rules": [
+    "Assigned source observations are immutable after freeze.",
+    "A split assignment is immutable after freeze.",
+    "New sessions after freeze are not assigned automatically.",
+    "Reference/model-train/validation/test_normal remain session-disjoint.",
+    "Changing the frozen protocol requires an explicit new version, not overwrite."
+  ]
+}

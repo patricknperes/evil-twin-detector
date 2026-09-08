@@ -1,0 +1,18 @@
+{
+  "phase": 4,
+  "step": 36,
+  "title": "Persistent application settings frontend",
+  "status": "settings_page_ready",
+  "route": "/settings",
+  "endpoints": [
+    "GET /settings",
+    "PATCH /settings",
+    "POST /settings/reset"
+  ],
+  "auto_scan_scheduler_started": false,
+  "scientific_mutation_controls": false,
+  "tailwind_css": true,
+  "material_ui": false,
+  "npm_install_build": "deferred",
+  "next": "Electron backend process orchestration and desktop lifecycle"
+}

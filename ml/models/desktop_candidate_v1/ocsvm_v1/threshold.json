@@ -1,0 +1,24 @@
+{
+  "schema_version": "desktop_threshold_v2",
+  "feature_set_name": "desktop_candidate_v1",
+  "features": [
+    "ssid_bssid_count",
+    "bssid_changed",
+    "security_changed",
+    "security_strength_delta"
+  ],
+  "source_split": "validation",
+  "source_label": "normal_only",
+  "rule": "P95 validation-normal anomaly score",
+  "quantile": 0.95,
+  "threshold": 3.2659592363870615e-08,
+  "prediction_rule": "anomaly_score > threshold",
+  "observed_validation_fpr": 0.0,
+  "attack_used_for_calibration": false,
+  "split_digest": "a5e481a0067cf72ead32cf5b85c1a3eab5bee710f6e74f0856ddb0e62de88d15",
+  "scientific_freeze_sha256": "866df41f7daf8249287da770e0a67229247e413b11dc08a4b36101fa411f1010",
+  "reference_file_sha256": "fddc8401cb65281ec2230aea127fde53c2c7bb1073c004ad2f822021da013b3f",
+  "scaler_file_sha256": "e9560450fbf3413b17ddec72465488b7b0be8a94333d8df54d77a2d1aba1b263",
+  "model_file_sha256": "93cc7cc20e80213150e3167a93b5be5c7e353efbca6fe67ff63aa8aa4507aa3d",
+  "artifact_lineage_file_sha256": "ae813d111b3b18b54e96528c530809bfa7ea233e6f2a3619b486e2f329b9ed46"
+}

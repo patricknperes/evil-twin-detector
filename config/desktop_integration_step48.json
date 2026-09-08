@@ -1,0 +1,21 @@
+{
+  "phase": 4,
+  "step": 48,
+  "schema_version": "desktop_integration_step48_v1",
+  "status": "deterministic_integration_ready_not_real_windows",
+  "scenarios": [
+    "backend_online_model_not_ready",
+    "scanner_unsupported",
+    "scanner_location_access_denied",
+    "manual_scan_model_not_ready",
+    "backend_offline",
+    "backend_recovery",
+    "automatic_scan_real_http_fetch",
+    "scan_in_progress_conflict"
+  ],
+  "real_windows_native_wifi": false,
+  "real_scientific_artifacts": false,
+  "frontend_dependency_resolved_e2e": false,
+  "scientific_artifacts_mutated": false,
+  "next": "Add renderer-level dependency-resolved E2E/Playwright once npm registry access is available; real Windows validation remains gated."
+}

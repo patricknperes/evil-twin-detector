@@ -1,0 +1,24 @@
+{
+  "phase": 4,
+  "step": 32,
+  "title": "Detailed Wi-Fi scan UX",
+  "status": "scan_page_ready",
+  "stack": "React + TypeScript + Electron + Tailwind CSS",
+  "features": [
+    "preflight health/settings",
+    "scan loading state",
+    "Windows location denial UX",
+    "Native Wi-Fi API error UX",
+    "backend unavailable UX",
+    "scan summary",
+    "suspicion filters",
+    "SSID/BSSID/security search",
+    "per-network expandable technical detail",
+    "privacy note",
+    "scientific interpretation note"
+  ],
+  "electron_location_settings_ipc": true,
+  "real_windows_scan_executed": false,
+  "material_ui": false,
+  "next": "Complete latest networks/detail screen or history UI."
+}

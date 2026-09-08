@@ -1,0 +1,75 @@
+{
+  "schema_version": "desktop_scientific_preflight_v1",
+  "phase": 4,
+  "step": 52,
+  "dataset": "own_windows",
+  "purpose": "Integrity gate before desktop_candidate_v1 split/reference freeze",
+  "minimum_valid_sessions": 5,
+  "required_session_semantics": {
+    "source_dataset": "own_windows",
+    "label": 0,
+    "attack_present": false,
+    "is_synthetic": false,
+    "attack_type": null,
+    "runtime_ready": true,
+    "session_folder_matches_manifest": true,
+    "clear_ssid_bssid_columns": false
+  },
+  "hash_requirements": {
+    "ssid_hash": "64 hex chars when present",
+    "bssid_hash": "64 hex chars when present",
+    "source_scans_sha256": "required",
+    "interim_observations_sha256": "required and reverified"
+  },
+  "coverage_gates": {
+    "bssid_hash_minimum": 0.99,
+    "desktop_candidate_v1_complete_minimum": 0.7
+  },
+  "duplicate_session_content": {
+    "policy": "block",
+    "fingerprint_excludes": [
+      "session_id",
+      "environment"
+    ],
+    "captured_at_utc_included": true
+  },
+  "temporal_overlap": {
+    "policy": "warning"
+  },
+  "split": {
+    "unit": "session_id",
+    "seed": 20260831,
+    "minimum_allocation": {
+      "reference": 1,
+      "model_train": 2,
+      "validation": 1,
+      "test_normal": 1
+    },
+    "row_level_random_split": false,
+    "immutable_after_ready": true,
+    "blocked_plan_can_regenerate": true,
+    "new_sessions_after_freeze": "reported_but_unassigned"
+  },
+  "freeze_artifacts": [
+    "session_split_plan.json",
+    "scientific_freeze.json",
+    "desktop_normal_reference.json",
+    "preparation_manifest.json"
+  ],
+  "downstream_ml_gate": "verify_prepared_freeze_integrity",
+  "normal_cohort": {
+    "max_environments": 1,
+    "reason": "desktop_candidate_v1 contextual reference must cover train/validation/test context before freeze",
+    "multi_environment_own_data": "separate cohort/protocol, not silent merge into E6 freeze"
+  },
+  "candidate_reference_coverage_gate": {
+    "enabled": true,
+    "minimum_eligible_rate_each_split": 0.7,
+    "splits": [
+      "model_train",
+      "validation",
+      "test_normal"
+    ],
+    "runs_before_freeze": true
+  }
+}

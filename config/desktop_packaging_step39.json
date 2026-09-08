@@ -1,0 +1,44 @@
+{
+  "phase": 4,
+  "step": 39,
+  "title": "electron-builder and NSIS Windows packaging",
+  "status": "desktop_installer_packaging_ready_not_built",
+  "frontend_version": "0.4.0-step39",
+  "platform": "Windows",
+  "architecture": "x64",
+  "electron_builder": {
+    "configured": true,
+    "installer": "NSIS",
+    "app_id": "br.edu.ufop.eviltwindetector",
+    "product_name": "Evil Twin Detector",
+    "one_click": false,
+    "per_machine": false,
+    "allow_install_directory_change": true,
+    "desktop_shortcut": true,
+    "start_menu_shortcut": true,
+    "delete_app_data_on_uninstall": false
+  },
+  "production_renderer": {
+    "vite_relative_base": true,
+    "hash_router": true,
+    "file_protocol_compatible": true
+  },
+  "backend": {
+    "source": "frontend/resources/backend/evil-twin-backend.exe",
+    "extra_resources_destination": "backend/evil-twin-backend.exe",
+    "required_for_installer": true
+  },
+  "gates": {
+    "backend_exe_required": true,
+    "frontend_dist_required": true,
+    "structural_preflight": true,
+    "installer_build_blocked_until_ready": true
+  },
+  "code_signing": {
+    "configured": false,
+    "certificate_required_for_trusted_distribution": true
+  },
+  "installer_built": false,
+  "npm_install_build": "deferred",
+  "next": "Implement automatic scan scheduler and high-suspicion desktop notifications."
+}

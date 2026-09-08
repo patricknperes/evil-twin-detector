@@ -1,0 +1,40 @@
+{
+  "phase": 4,
+  "step": 38,
+  "title": "PyInstaller backend packaging contract",
+  "status": "backend_packaging_ready_not_built",
+  "backend_version": "0.7.0-step38",
+  "pyinstaller": {
+    "spec": "backend/packaging/evil-twin-backend.spec",
+    "entrypoint": "backend/packaged_entry.py",
+    "output_name": "evil-twin-backend.exe",
+    "mode": "onefile",
+    "console": true,
+    "production_build_script": "scripts/build_backend_windows.ps1"
+  },
+  "runtime_resources": {
+    "alembic_ini": true,
+    "migrations": true,
+    "backend_api_config": true,
+    "application_settings_config": true,
+    "scientific_artifacts": [
+      "reference",
+      "scaler",
+      "model",
+      "threshold"
+    ]
+  },
+  "database": {
+    "production_default": "%LOCALAPPDATA%/EvilTwinDetector/evil_twin_detector.db",
+    "inside_program_files": false
+  },
+  "migrations": {
+    "run_before_uvicorn": true,
+    "programmatic_runner_controls_target_db": true
+  },
+  "electron_resource_target": "frontend/resources/backend/evil-twin-backend.exe",
+  "production_build_requires_real_scientific_artifacts": true,
+  "pyinstaller_build_executed": false,
+  "installer_created": false,
+  "next": "Prepare electron-builder/NSIS packaging and production app layout."
+}

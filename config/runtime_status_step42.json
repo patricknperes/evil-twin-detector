@@ -1,0 +1,44 @@
+{
+  "phase": 4,
+  "step": 42,
+  "title": "Global desktop runtime status and backend recovery UX",
+  "status": "global_runtime_status_ready_not_windows_executed",
+  "backend_version": "0.9.0-step42",
+  "frontend_version": "0.7.0-step42",
+  "global_runtime": {
+    "backend": true,
+    "scanner": true,
+    "model": true,
+    "scheduler": true,
+    "single_provider": true
+  },
+  "connection": {
+    "states": [
+      "connecting",
+      "connected",
+      "reconnecting",
+      "disconnected"
+    ],
+    "connected_refresh_from_setting": "frontend_refresh_seconds",
+    "retry_while_disconnected_seconds": 2,
+    "mark_disconnected_after_failures": 3,
+    "refresh_on_window_focus": true,
+    "refresh_on_auto_scan_event": true,
+    "preserve_existing_page_data_during_disconnect": true,
+    "full_renderer_reload": false
+  },
+  "scanner_runtime": {
+    "states": [
+      "not_initialized",
+      "ready",
+      "location_access_denied",
+      "unsupported_platform",
+      "error"
+    ],
+    "successful_scan_recovers_ready": true
+  },
+  "settings_scheduler_polling": false,
+  "real_windows_disconnect_recovery": false,
+  "scientific_artifacts_mutated": false,
+  "next": "Synchronize History/Model views with runtime events and add application-level diagnostic/support export."
+}

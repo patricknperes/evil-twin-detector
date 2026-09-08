@@ -1,0 +1,51 @@
+{
+  "phase": 4,
+  "step": 52,
+  "schema_version": "windows_collection_protocol_step52_v1",
+  "status": "implementation_frozen_collection_not_started",
+  "experiment": "E6 desktop_candidate_v1 controlled Windows cohort",
+  "normal_collection": {
+    "minimum_sessions": 5,
+    "recommended_sessions": 9,
+    "scans_per_session": 30,
+    "interval_seconds_after_scan": 6.0,
+    "fresh_scan_wait_seconds": 4.2,
+    "normal_cohort_environment_count": 1,
+    "same_environment_label_for_all_sessions": true,
+    "attack_active": false,
+    "clear_ssid_bssid": false,
+    "coordinates": false,
+    "freeze_only_after_all_planned_normal_sessions": true
+  },
+  "reference_coverage": {
+    "dry_run_before_freeze": true,
+    "minimum_eligible_rate_each_split": 0.7,
+    "splits": [
+      "model_train",
+      "validation",
+      "test_normal"
+    ]
+  },
+  "controlled_attack": {
+    "same_environment_as_normal_cohort": true,
+    "authorized_experiment_required": true,
+    "evaluation_only": true,
+    "minimum_eligible_rate": 0.7,
+    "synthetic": false,
+    "fit_scaler": false,
+    "fit_model": false,
+    "calibrate_threshold": false
+  },
+  "workflow": [
+    "implementation snapshot verification",
+    "Windows Native Wi-Fi readiness probe",
+    "normal session collection",
+    "idempotent normal import and scientific preflight",
+    "normal freeze/training only after final planned normal session",
+    "authorized controlled attack collection in same environment",
+    "idempotent attack import",
+    "fixed-reference attack feature preparation",
+    "fixed-artifact final evaluation",
+    "aggregate final TCC results"
+  ]
+}

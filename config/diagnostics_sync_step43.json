@@ -1,0 +1,35 @@
+{
+  "phase": 4,
+  "step": 43,
+  "title": "History/Model runtime synchronization and privacy-safe diagnostics",
+  "status": "diagnostics_and_history_model_sync_ready",
+  "backend_version": "1.0.0-step43",
+  "frontend_version": "0.8.0-step43",
+  "history_sync": {
+    "auto_scan_event": true,
+    "backend_recovery": true,
+    "polling": false,
+    "full_reload": false
+  },
+  "model_sync": {
+    "auto_scan_event": true,
+    "backend_recovery": true,
+    "polling": false,
+    "full_reload": false
+  },
+  "diagnostics": {
+    "route": "/diagnostics",
+    "endpoint": "/diagnostics/support-bundle",
+    "format": "json",
+    "automatic_upload": false,
+    "clear_ssid_bssid": false,
+    "observation_records": false,
+    "raw_ie_bytes": false,
+    "filesystem_paths": false,
+    "environment_variables": false
+  },
+  "real_windows_export": false,
+  "npm_install_build": "deferred",
+  "scientific_artifacts_mutated": false,
+  "next": "Prepare application-level test/build execution matrix and scientific preflight freeze integrity before the final real-data run."
+}

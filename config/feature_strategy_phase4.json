@@ -1,0 +1,224 @@
+{
+  "version": "1.0.0",
+  "phase": 4,
+  "step": 4,
+  "tracks": {
+    "TRACK_G_GENERALIZATION": {
+      "name": "multisource_generalization",
+      "status": "keep_as_baseline",
+      "feature_set": "conservative_v2",
+      "features": [
+        "rssi_std_db",
+        "rssi_delta_db"
+      ],
+      "sources": [
+        "Mendeley normal",
+        "V2I normal"
+      ],
+      "purpose": "Responder se sinais temporais de RSSI com baixo source leakage generalizam entre ambientes.",
+      "limitation": "Não representa toda a semântica de Evil Twin e apresentou baixo poder discriminativo contra ataques sintéticos."
+    },
+    "TRACK_E_EVIL_TWIN_CONTEXT": {
+      "name": "evil_twin_contextual_v1",
+      "status": "contextual_core_v2_formalized",
+      "sources": [
+        "Mendeley",
+        "future own controlled collection"
+      ],
+      "purpose": "Detectar mudanças contextuais relevantes a Rogue/Evil Twin sem exigir que V2I forneça campos que ele não possui.",
+      "candidate_derived_features": [
+        {
+          "feature": "ssid_bssid_count",
+          "origin": "SSID/BSSID grouping",
+          "desktop_candidate": true,
+          "risk": "Não usar SSID/BSSID crus como número; somente contagem/estado."
+        },
+        {
+          "feature": "bssid_changed",
+          "origin": "mudança de BSSID observada para o mesmo SSID ao longo do tempo",
+          "desktop_candidate": true,
+          "risk": "Precisa de histórico e comparação contextual."
+        },
+        {
+          "feature": "channel_changed",
+          "origin": "mudança temporal de canal do mesmo identificador/rede",
+          "desktop_candidate": true,
+          "risk": "Mudanças legítimas existem; não é prova isolada de ataque."
+        },
+        {
+          "feature": "security_changed",
+          "origin": "mudança temporal de security_type para a mesma identidade lógica",
+          "desktop_candidate": true,
+          "risk": "Exige baseline histórico da rede."
+        },
+        {
+          "feature": "security_strength_delta",
+          "origin": "comparação ordinal de segurança dentro do contexto da rede",
+          "desktop_candidate": true,
+          "risk": "A codificação ordinal precisa ser explícita e não usada como identidade."
+        },
+        {
+          "feature": "bssid_local_admin_flag",
+          "origin": "bit U/L do primeiro octeto do BSSID",
+          "desktop_candidate": true,
+          "risk": "Pode detectar a construção synthetic local_admin_bssid de forma muito direta. Deve ser avaliada separadamente para não confundir regra específica com generalização."
+        },
+        {
+          "feature": "tsf_monotonic_violation",
+          "origin": "BeaconTimestamp/TSF temporal",
+          "desktop_candidate": false,
+          "risk": "Disponibilidade no scanner Windows ainda não foi validada; usar apenas no experimento acadêmico se observável."
+        },
+        {
+          "feature": "observed_channel_vs_advertised_mismatch",
+          "origin": "Channel vs DSChannel/advertised channel",
+          "desktop_candidate": "pending_scanner_validation",
+          "risk": "Semântica depende do método de captura."
+        },
+        {
+          "feature": "configured_beacon_interval_ms",
+          "origin": "BeaconInterval configurado",
+          "desktop_candidate": "pending_scanner_validation",
+          "risk": "No Mendeley normal é quase constante; isoladamente tem pouco valor."
+        },
+        {
+          "feature": "is_hidden",
+          "origin": "estado de SSID oculto",
+          "desktop_candidate": true,
+          "risk": "Rede oculta pode ser legítima; usar apenas como contexto."
+        }
+      ],
+      "strict_exclusions": [
+        "_rogue_type",
+        "is_rogue",
+        "labels derivados pelo gerador sintético",
+        "flags sintéticas prontas do dataset processado",
+        "SSID cru como feature numérica",
+        "BSSID cru como feature numérica",
+        "source_dataset",
+        "session_id"
+      ],
+      "implemented_profile": "evil_twin_contextual_v1",
+      "implemented_features": [
+        "ssid_bssid_count",
+        "bssid_changed",
+        "channel_changed",
+        "security_changed",
+        "security_strength_delta",
+        "is_hidden",
+        "configured_beacon_interval_ms"
+      ],
+      "reference_policy": "40% normal reference only; 30% model_train; 15% validation; 15% test_normal",
+      "primary_feature_set": "contextual_core_v2",
+      "primary_features": [
+        "ssid_bssid_count",
+        "bssid_changed",
+        "security_changed",
+        "security_strength_delta",
+        "is_hidden"
+      ],
+      "protocol_specific_ablations": {
+        "tsf_reference_monotonic_violation": {
+          "status": "ablation_only",
+          "promoted": false,
+          "reason": "Synthetic tsf_reset directly modifies BeaconTimestamp and legitimate AP reboots may also reset TSF.",
+          "desktop_availability": "pending_scanner_validation"
+        },
+        "bssid_local_admin_flag": {
+          "status": "ablation_only",
+          "promoted": false,
+          "reason": "Synthetic local_admin_bssid directly targets the U/L bit, while legitimate BSSIDs may also be locally administered."
+        }
+      },
+      "channel_semantics_review": {
+        "capture_channel_changed": "deprecated",
+        "capture_advertised_mismatch": "rejected",
+        "advertised_channel_changed": "optional_real_world_candidate",
+        "next_primary_candidate": "contextual_core_v2",
+        "next_primary_candidate_features": [
+          "ssid_bssid_count",
+          "bssid_changed",
+          "security_changed",
+          "security_strength_delta",
+          "is_hidden"
+        ]
+      },
+      "deprecated_primary_features": [
+        "channel_changed"
+      ],
+      "optional_experimental_features": [
+        "advertised_channel_changed"
+      ]
+    },
+    "TRACK_D_DESKTOP": {
+      "name": "desktop_candidate_v1",
+      "status": "feature_contract_ready_retraining_required",
+      "platform": "Windows Native Wi-Fi API",
+      "packet_capture_required": false,
+      "primary_features": [
+        "ssid_bssid_count",
+        "bssid_changed",
+        "security_changed",
+        "security_strength_delta"
+      ],
+      "metadata_only": [
+        "ssid_not_broadcast"
+      ],
+      "observable_ablation_only": [
+        "tsf_reference_monotonic_violation",
+        "bssid_local_admin_flag"
+      ],
+      "experimental_optional": [
+        "advertised_channel_changed"
+      ],
+      "retrain_required": true
+    }
+  },
+  "experiments": [
+    {
+      "id": "F4-E1",
+      "track": "TRACK_G_GENERALIZATION",
+      "train": "Mendeley normal + V2I normal",
+      "features": "conservative_v2",
+      "models": [
+        "Isolation Forest",
+        "One-Class SVM",
+        "Autoencoder"
+      ],
+      "status": "completed_baseline",
+      "finding": "Baixo poder contra ataques sintéticos; mantém valor como baseline de generalização."
+    },
+    {
+      "id": "F4-E2",
+      "track": "TRACK_E_EVIL_TWIN_CONTEXT",
+      "train": "Mendeley real legitimate only",
+      "test": "Mendeley synthetic rogue, por tipo",
+      "features": "evil_twin_contextual_v1",
+      "status": "feature_engineering_ready",
+      "rule": "Não usar features/flags produzidas pelo gerador de ataque. Somente derivar sinais do protocolo e histórico."
+    },
+    {
+      "id": "F4-E3",
+      "track": "TRACK_E_EVIL_TWIN_CONTEXT",
+      "train": "Mendeley real legitimate only",
+      "test": "Mendeley synthetic rogue",
+      "features": "ablation por família de feature",
+      "status": "planned",
+      "purpose": "Medir quanto cada família de sinais contribui e detectar features que apenas reconhecem o gerador sintético."
+    },
+    {
+      "id": "F4-E4",
+      "track": "TRACK_D_DESKTOP",
+      "train": "dados próprios normais + públicos compatíveis",
+      "test": "Evil Twin próprio/controlado",
+      "features": "desktop_candidate_v1 after scanner validation",
+      "status": "future_primary_evaluation"
+    }
+  ],
+  "rules": [
+    "Generalização multi-source e detecção contextual de Evil Twin serão avaliadas em tracks separados.",
+    "Não usar flags sintéticas prontas nem labels como features.",
+    "Features específicas de uma transformação sintética devem passar por ablation.",
+    "O profile desktop só será congelado após validar o scanner Windows."
+  ]
+}

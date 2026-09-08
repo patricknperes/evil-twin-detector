@@ -1,0 +1,29 @@
+{
+  "phase": 4,
+  "step": 29,
+  "schema_version": "application_settings_v1",
+  "status": "ready",
+  "persistence": "SQLite singleton row",
+  "defaults": {
+    "request_fresh_scan": true,
+    "scan_wait_seconds": 4.2,
+    "auto_scan_enabled": false,
+    "auto_scan_interval_seconds": 30.0,
+    "history_page_size": 25,
+    "history_observation_page_size": 50,
+    "dashboard_recent_scans": 5,
+    "dashboard_recent_detections": 5,
+    "dashboard_trend_limit": 30,
+    "frontend_refresh_seconds": 10,
+    "show_technical_details": true,
+    "high_anomaly_notifications": true
+  },
+  "scientific_immutability": {
+    "reference_update_allowed": false,
+    "scaler_fit_allowed": false,
+    "model_fit_allowed": false,
+    "threshold_recalibration_allowed": false,
+    "artifact_paths_editable": false
+  },
+  "auto_scan_note": "Preference/contract only in Step 29; no background scheduler is started by this step."
+}

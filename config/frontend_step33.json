@@ -1,0 +1,30 @@
+{
+  "phase": 4,
+  "step": 33,
+  "title": "Observed networks page",
+  "status": "networks_page_ready",
+  "route": "/networks",
+  "data_source": "GET /networks",
+  "scope": "latest runtime scan only",
+  "features": [
+    "refresh latest runtime scan",
+    "search",
+    "suspicion filters",
+    "sorting",
+    "summary counters",
+    "expandable technical details",
+    "desktop_candidate_v1 feature details",
+    "loading/empty/error states"
+  ],
+  "privacy": {
+    "clear_ssid_bssid_in_active_runtime_view": true,
+    "clear_ssid_bssid_in_persisted_history": false
+  },
+  "scientific_language": {
+    "high_suspicion_is_confirmation": false,
+    "unavailable_is_attack": false
+  },
+  "material_ui": false,
+  "tailwind_css": true,
+  "next": "Implement complete History page"
+}

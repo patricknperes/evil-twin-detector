@@ -1,0 +1,42 @@
+{
+  "phase": 4,
+  "step": 51,
+  "schema_version": "desktop_release_preflight_step51_v1",
+  "status": "implemented_current_release_blocked",
+  "targets": [
+    "inputs",
+    "installer",
+    "verify"
+  ],
+  "required_before_installer": [
+    "implementation_validation",
+    "desktop_integration_scenarios",
+    "windows_execution_host",
+    "windows_normal_collection",
+    "scientific_preflight",
+    "frozen_split_reference",
+    "ml_ready_scaler_lineage",
+    "ocsvm_threshold_runtime_chain",
+    "controlled_real_attack_data",
+    "controlled_attack_features",
+    "fixed_artifact_final_evaluation",
+    "tcc_final_results_bundle",
+    "frontend_source_packaging_contract",
+    "frontend_test_typecheck_build",
+    "renderer_electron_e2e"
+  ],
+  "powershell": {
+    "windows_powershell_5_1_source_compatible": true,
+    "powershell_7_source_compatible": true,
+    "iswindows_automatic_variable_used": false,
+    "runtime_execution_in_this_environment": false
+  },
+  "post_build": {
+    "installer_sha256": true,
+    "backend_exe_sha256": true,
+    "frontend_index_sha256": true,
+    "scientific_artifact_sha256": true,
+    "tcc_results_manifest_sha256": true,
+    "code_signing_required_for_tcc": false
+  }
+}

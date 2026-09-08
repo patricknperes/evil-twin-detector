@@ -1,0 +1,42 @@
+{
+  "phase": 4,
+  "step": 30,
+  "title": "React + TypeScript + Vite + Electron + Tailwind shell",
+  "status": "frontend_shell_ready",
+  "stack": [
+    "React",
+    "TypeScript",
+    "Vite",
+    "Electron",
+    "Tailwind CSS v4"
+  ],
+  "material_ui": false,
+  "tailwind_css": true,
+  "api_base_default": "http://127.0.0.1:8765",
+  "routes": [
+    "/",
+    "/scan",
+    "/networks",
+    "/history",
+    "/model",
+    "/settings"
+  ],
+  "connected": [
+    "/dashboard/overview",
+    "/scan",
+    "/networks"
+  ],
+  "placeholder_pages": [
+    "history",
+    "model",
+    "settings"
+  ],
+  "cors_origins": [
+    "http://127.0.0.1:5173",
+    "http://localhost:5173",
+    "null"
+  ],
+  "backend_autostart": false,
+  "npm_install_executed": false,
+  "reason": "User requested finishing stages first and running everything together later."
+}

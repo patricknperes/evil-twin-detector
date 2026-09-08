@@ -1,0 +1,34 @@
+{
+  "phase": 4,
+  "step": 37,
+  "title": "Electron backend lifecycle orchestration",
+  "status": "desktop_backend_lifecycle_ready",
+  "backend_url": "http://127.0.0.1:8765",
+  "startup": {
+    "existing_healthy_backend_reused": true,
+    "development_command": "python -m backend",
+    "packaged_expected_executable": "resources/backend/evil-twin-backend.exe",
+    "health_endpoint": "/health",
+    "startup_timeout_ms": 15000,
+    "poll_interval_ms": 250
+  },
+  "shutdown": {
+    "electron_owned_backend_stopped_on_quit": true,
+    "external_backend_not_stopped": true,
+    "windows_process_tree_kill": true
+  },
+  "failure_handling": {
+    "startup_failure_dialog": true,
+    "stderr_tail_included": true,
+    "window_created_only_after_backend_ready": true
+  },
+  "renderer_bridge": {
+    "backend_status_read_only": true,
+    "arbitrary_process_spawn_exposed": false,
+    "arbitrary_shell_url_exposed": false
+  },
+  "backend_packaged_exe_created": false,
+  "electron_installer_created": false,
+  "npm_install_build": "deferred",
+  "next": "Package Python backend with PyInstaller and define Electron production resources"
+}

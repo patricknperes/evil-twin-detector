@@ -1,0 +1,51 @@
+{
+  "schema_version": "desktop_candidate_v1_scaler_v1",
+  "fit_split": "model_train",
+  "fit_rows": 2231,
+  "features": [
+    "ssid_bssid_count",
+    "bssid_changed",
+    "security_changed",
+    "security_strength_delta"
+  ],
+  "reference_used_for_fit": false,
+  "validation_used_for_fit": false,
+  "test_used_for_fit": false,
+  "mean": {
+    "ssid_bssid_count": 1.5320484087852981,
+    "bssid_changed": 0.0,
+    "security_changed": 0.0,
+    "security_strength_delta": 0.0
+  },
+  "scale": {
+    "ssid_bssid_count": 0.4989718423862518,
+    "bssid_changed": 1.0,
+    "security_changed": 1.0,
+    "security_strength_delta": 1.0
+  },
+  "train_variance": {
+    "ssid_bssid_count": {
+      "unique": 2,
+      "mean": 1.5320484087852981,
+      "variance_population": 0.2489728994943305
+    },
+    "bssid_changed": {
+      "unique": 1,
+      "mean": 0.0,
+      "variance_population": 0.0
+    },
+    "security_changed": {
+      "unique": 1,
+      "mean": 0.0,
+      "variance_population": 0.0
+    },
+    "security_strength_delta": {
+      "unique": 1,
+      "mean": 0.0,
+      "variance_population": 0.0
+    }
+  },
+  "split_digest": "a5e481a0067cf72ead32cf5b85c1a3eab5bee710f6e74f0856ddb0e62de88d15",
+  "scientific_freeze_sha256": "866df41f7daf8249287da770e0a67229247e413b11dc08a4b36101fa411f1010",
+  "reference_file_sha256": "fddc8401cb65281ec2230aea127fde53c2c7bb1073c004ad2f822021da013b3f"
+}

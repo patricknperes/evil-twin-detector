@@ -1,0 +1,42 @@
+{
+  "phase": 4,
+  "step": 34,
+  "title": "History and audit frontend",
+  "status": "history_page_ready",
+  "route": "/history",
+  "endpoints": [
+    "GET /history/scans",
+    "GET /history/scans/{scan_id}",
+    "GET /history/detections",
+    "GET /history/detections/{detection_id}",
+    "GET /history/models",
+    "GET /history/models/{model_version_id}"
+  ],
+  "features": [
+    "scan history list",
+    "scan pagination",
+    "scan detail",
+    "anonymized observation detail",
+    "detection history list",
+    "detection filters",
+    "detection pagination",
+    "detection detail",
+    "model filter",
+    "model artifact audit",
+    "scan -> observation -> detection -> model navigation"
+  ],
+  "privacy": {
+    "clear_ssid": false,
+    "clear_bssid": false,
+    "clear_interface_guid": false,
+    "persisted_hashes_only": true
+  },
+  "scientific_language": {
+    "anomaly_equals_confirmed_evil_twin": false,
+    "insufficient_history_separate": true
+  },
+  "tailwind_css": true,
+  "material_ui": false,
+  "npm_install_build": "deferred",
+  "next": "Implement complete Model page"
+}

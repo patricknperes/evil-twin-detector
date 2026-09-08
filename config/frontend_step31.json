@@ -1,0 +1,39 @@
+{
+  "phase": 4,
+  "step": 31,
+  "title": "Complete dashboard UI with Recharts",
+  "status": "dashboard_ui_ready",
+  "stack": [
+    "React",
+    "TypeScript",
+    "Vite",
+    "Electron",
+    "Tailwind CSS",
+    "Recharts"
+  ],
+  "material_ui": false,
+  "endpoints": [
+    "GET /dashboard/overview",
+    "GET /dashboard/trends"
+  ],
+  "sections": [
+    "KPI cards",
+    "system status",
+    "analysis coverage",
+    "scan trend chart",
+    "suspicion distribution chart",
+    "recent scans",
+    "recent detections",
+    "active model",
+    "latest activity",
+    "loading/error/empty states"
+  ],
+  "terminology": {
+    "high": "high suspicion/anomaly above threshold",
+    "unknown": "insufficient history/unavailable",
+    "evil_twin_confirmation": false
+  },
+  "npm_install": "deferred by project workflow",
+  "frontend_build": "deferred until all stages are complete",
+  "next": "Implement Scan page detailed UX and Windows permission/error states."
+}

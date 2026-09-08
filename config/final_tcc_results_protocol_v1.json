@@ -1,0 +1,59 @@
+{
+  "phase": 4,
+  "step": 50,
+  "schema_version": "tcc_final_results_bundle_v1",
+  "name": "desktop_candidate_v1_final_tcc_results",
+  "status": "implemented_not_executed_on_real_final_evaluation",
+  "source": {
+    "required_schema": "desktop_final_evaluation_v2",
+    "required_status": "executed_fixed_artifacts",
+    "evaluation_executed": true,
+    "artifacts_modified": false,
+    "required_files": [
+      "final_evaluation.json",
+      "test_normal_scores.csv.gz",
+      "attack_scores.csv.gz",
+      "recall_by_attack_type.csv",
+      "recall_by_attack_session.csv"
+    ]
+  },
+  "integrity": {
+    "frozen_artifact_hashes_rechecked": true,
+    "metrics_recomputed_from_scores": true,
+    "prediction_threshold_consistency": true,
+    "attack_aggregates_recomputed": true,
+    "synthetic_attack_rejected": true,
+    "create_only_output": true
+  },
+  "outputs": [
+    "metrics_summary.csv",
+    "confusion_matrix.csv",
+    "roc_curve.csv",
+    "precision_recall_curve.csv",
+    "score_distribution.csv",
+    "recall_by_attack_type.csv",
+    "recall_by_attack_session.csv",
+    "timing_summary.csv",
+    "confusion_matrix.png",
+    "roc_curve.png",
+    "precision_recall_curve.png",
+    "score_distribution.png",
+    "final_results_summary.md",
+    "reproducibility_manifest.json"
+  ],
+  "privacy": {
+    "copy_row_level_score_files": false,
+    "clear_ssid_bssid": false,
+    "wifi_hash_identifiers": false,
+    "aggregate_only": true
+  },
+  "forbidden_operations": [
+    "scaler.fit",
+    "scaler.partial_fit",
+    "model.fit",
+    "threshold recalibration",
+    "hyperparameter tuning",
+    "normal reference update",
+    "fabricated metrics"
+  ]
+}

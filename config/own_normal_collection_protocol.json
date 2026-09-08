@@ -1,0 +1,49 @@
+{
+  "phase": 4,
+  "step": 17,
+  "protocol_version": "1.0.0",
+  "name": "windows_own_normal_collection_v1",
+  "status": "ready_for_windows_execution",
+  "raw_root": "data/raw/own/windows/<session_id>/",
+  "privacy_default": {
+    "persist_clear_ssid_bssid": false,
+    "stable_sha256_identifiers": true,
+    "coordinates": false
+  },
+  "phase_a_runtime_validation": {
+    "recommended_scans": 10,
+    "interval_seconds_after_scan": 3.0,
+    "scan_wait_seconds": 4.2
+  },
+  "phase_b_normal_collection": {
+    "recommended_scans_per_session": 30,
+    "interval_seconds_after_scan": 6.0,
+    "recommended_sessions_per_environment": 5,
+    "minimum_independent_sessions_before_modeling": 3,
+    "normal_only": true,
+    "attack_must_be_inactive": true
+  },
+  "splitting_rules": {
+    "group_unit": "session_id",
+    "random_row_split": false,
+    "same_session_across_train_validation_test": false,
+    "environment_leave_out_when_possible": true
+  },
+  "desktop_candidate_v1": {
+    "features": [
+      "ssid_bssid_count",
+      "bssid_changed",
+      "security_changed",
+      "security_strength_delta"
+    ],
+    "training_status": "blocked_until_real_windows_collection_validation",
+    "reuse_core_v2_model": false
+  },
+  "optional_signals": {
+    "rssi_dbm": "diagnostic/research",
+    "beacon_interval_ms": "diagnostic/research",
+    "tsf_us": "ablation-only even if observable",
+    "ds_parameter_channel": "diagnostic only",
+    "center_frequency_khz": "native metadata"
+  }
+}

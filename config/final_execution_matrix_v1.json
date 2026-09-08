@@ -1,0 +1,95 @@
+{
+  "schema_version": "final_execution_matrix_v1",
+  "phase": 4,
+  "step": 48,
+  "title": "Final end-to-end execution and validation matrix",
+  "statuses": {
+    "READY": "Executed/available and validated for this gate.",
+    "BLOCKED": "Cannot proceed because a prerequisite or real input is missing/invalid.",
+    "NOT_EXECUTED": "Implementation and prerequisites are ready, but the action/output has not yet been executed.",
+    "OPTIONAL": "Useful for distribution, but not required for the scientific TCC run."
+  },
+  "stages": [
+    {
+      "id": "implementation_validation",
+      "command": "python -m pytest -q tests"
+    },
+    {
+      "id": "desktop_integration_scenarios",
+      "command": "python -m desktop.integration.run_step48"
+    },
+    {
+      "id": "windows_execution_host",
+      "command": null
+    },
+    {
+      "id": "windows_normal_collection",
+      "command": ".\\scripts\\collect_windows_normal_session.ps1"
+    },
+    {
+      "id": "scientific_preflight",
+      "command": "python -m desktop.windows.scientific_preflight"
+    },
+    {
+      "id": "frozen_split_reference",
+      "command": "python -m desktop.windows.prepare_desktop_reference"
+    },
+    {
+      "id": "ml_ready_scaler_lineage",
+      "command": "python -m desktop.windows.prepare_desktop_ml"
+    },
+    {
+      "id": "ocsvm_threshold_runtime_chain",
+      "command": "python -m desktop.windows.train_desktop_ocsvm"
+    },
+    {
+      "id": "controlled_real_attack_data",
+      "command": ".\\scripts\\collect_windows_controlled_attack.ps1"
+    },
+    {
+      "id": "controlled_attack_features",
+      "command": "python -m desktop.windows.prepare_controlled_attack_features"
+    },
+    {
+      "id": "fixed_artifact_final_evaluation",
+      "command": "python -m desktop.windows.evaluate_frozen_desktop_model"
+    },
+    {
+      "id": "tcc_final_results_bundle",
+      "command": ".\\scripts\\generate_final_tcc_results.ps1"
+    },
+    {
+      "id": "frontend_source_packaging_contract",
+      "command": "python desktop/packaging/preflight.py --allow-missing-build-products"
+    },
+    {
+      "id": "frontend_test_typecheck_build",
+      "command": "cd frontend; npm install; npm test; npm run typecheck; npm run build:web"
+    },
+    {
+      "id": "renderer_electron_e2e",
+      "command": ".\\scripts\\validate_renderer_e2e.ps1"
+    },
+    {
+      "id": "backend_pyinstaller",
+      "command": ".\\scripts\\build_backend_windows.ps1"
+    },
+    {
+      "id": "nsis_installer",
+      "command": ".\\scripts\\build_desktop_installer_windows.ps1"
+    },
+    {
+      "id": "windows_code_signing",
+      "command": null
+    }
+  ],
+  "scientific_policy": {
+    "minimum_real_normal_sessions": 5,
+    "real_controlled_attack_required": true,
+    "synthetic_attack_final_metrics": false,
+    "attack_used_for_fit": false,
+    "attack_used_for_threshold_calibration": false,
+    "final_evaluation_refit": false,
+    "final_evaluation_recalibration": false
+  }
+}

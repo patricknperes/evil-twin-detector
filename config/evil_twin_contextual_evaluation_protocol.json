@@ -1,0 +1,85 @@
+{
+  "protocol_version": "1.0.0",
+  "phase": 4,
+  "step": 6,
+  "track": "TRACK_E_EVIL_TWIN_CONTEXT",
+  "profile": "evil_twin_contextual_v1",
+  "primary_feature_set": "contextual_full_v1",
+  "primary_features": [
+    "ssid_bssid_count",
+    "bssid_changed",
+    "channel_changed",
+    "security_changed",
+    "security_strength_delta",
+    "is_hidden"
+  ],
+  "removed_features": {
+    "configured_beacon_interval_ms": "Removida porque é globalmente constante em todos os conjuntos elegíveis atuais: 102.4 ms."
+  },
+  "retained_constant_normal_features": {
+    "bssid_changed": "Preservada porque é um indicador contextual/evento. Variância zero no normal é esperada e não significa ausência de informação para novelty detection.",
+    "security_changed": "Preservada porque é um indicador contextual/evento. Variância zero no normal é esperada e não significa ausência de informação para novelty detection.",
+    "security_strength_delta": "Preservada porque é um indicador contextual/evento. Variância zero no normal é esperada e não significa ausência de informação para novelty detection.",
+    "is_hidden": "Preservada porque é um indicador contextual/evento. Variância zero no normal é esperada e não significa ausência de informação para novelty detection."
+  },
+  "ablation_feature_set": {
+    "name": "contextual_variable_only_v1",
+    "features": [
+      "ssid_bssid_count",
+      "channel_changed"
+    ],
+    "purpose": "Separar o efeito das features contextuais de evento das features que já variam no normal."
+  },
+  "data": {
+    "reference": "40% normal, usado somente para histórico",
+    "model_train_normal": 7499,
+    "validation_normal": 3757,
+    "test_normal": 3939,
+    "test_attack_synthetic": 28543
+  },
+  "scaler": {
+    "type": "StandardScaler",
+    "fit_split": "model_train_normal",
+    "validation_test_refit": false,
+    "artifact": "ml/models/preprocessing/evil_twin_contextual_v1_standard_scaler.joblib"
+  },
+  "anomaly_score": {
+    "direction": "higher_is_more_anomalous",
+    "isolation_forest": "-decision_function(X)",
+    "one_class_svm": "-decision_function(X)",
+    "autoencoder": "reconstruction_error(X)"
+  },
+  "threshold": {
+    "calibration_split": "validation_normal",
+    "method": "P95 normal anomaly score",
+    "target_false_positive_rate": 0.05,
+    "attack_used_for_threshold": false
+  },
+  "frozen_test": {
+    "normal": "test_normal",
+    "attack": "test_attack_synthetic",
+    "threshold_refit_on_test": false
+  },
+  "evaluation": {
+    "metrics": [
+      "precision",
+      "recall",
+      "f1",
+      "accuracy",
+      "roc_auc",
+      "pr_auc",
+      "false_positive_rate",
+      "false_negative_rate",
+      "confusion_matrix",
+      "inference_time"
+    ],
+    "attack_breakdown": "attack_type metadata, evaluation only",
+    "coverage_rule": "Resultados do Track E são condicionais ao subconjunto contextual elegível; cobertura deve ser reportada junto."
+  },
+  "important_model_note": {
+    "isolation_forest": "Features constantes no treino não geram thresholds de split nas árvores. Portanto IF pode não aproveitar bssid_changed, security_changed, security_strength_delta ou is_hidden quando elas são sempre zero no normal de treino.",
+    "one_class_svm": "Pode reagir a valores novos nessas dimensões via distância/kernel.",
+    "autoencoder": "Pode reagir a valores novos via erro de reconstrução.",
+    "interpretation": "Diferenças de desempenho entre os modelos neste track podem refletir também essa propriedade algorítmica."
+  }
+}

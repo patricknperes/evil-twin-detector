@@ -1,0 +1,63 @@
+{
+  "schema_version": "desktop_reference_preparation_v2",
+  "status": "reference_and_features_ready_no_model_training",
+  "reference_built": true,
+  "desktop_features_built": true,
+  "model_training_started": false,
+  "desktop_features": [
+    "ssid_bssid_count",
+    "bssid_changed",
+    "security_changed",
+    "security_strength_delta"
+  ],
+  "reference_session_ids": [
+    "win-normal-lab-principal-20260901T170828Z-ea9a67"
+  ],
+  "ssid_profile_count": 16,
+  "normal_cohort_environment": "lab-principal",
+  "normal_cohort_environments": [
+    "lab-principal"
+  ],
+  "split_digest": "a5e481a0067cf72ead32cf5b85c1a3eab5bee710f6e74f0856ddb0e62de88d15",
+  "split_plan_file_sha256": "1647e9c3850dd29bb0fa0d6e049520e9479a30935d50d21f0164e6166b899a14",
+  "scientific_freeze_sha256": "866df41f7daf8249287da770e0a67229247e413b11dc08a4b36101fa411f1010",
+  "reference_file_sha256": "fddc8401cb65281ec2230aea127fde53c2c7bb1073c004ad2f822021da013b3f",
+  "reference_source_hashes": {
+    "win-normal-lab-principal-20260901T170828Z-ea9a67": {
+      "source_scans_sha256": "13ba0c6a0b5af27c6b859712b19edf635f67e6bec83a5ee047ec93d97782983d",
+      "observations_sha256": "e01f138649fd8c7b227c772cbe1e6261f1363f5d913ad106855fa4f706218de2",
+      "content_fingerprint": "b928d4883dd959cb34e29808e965381c373c65d1b5682652d4bf60cdb60cbdb4"
+    }
+  },
+  "unassigned_sessions_after_freeze": [],
+  "new_freeze_created": true,
+  "coverage": {
+    "model_train": {
+      "rows": 3036,
+      "eligible": 2231,
+      "eligible_rate": 0.7348484848484849,
+      "context_unavailable": 805
+    },
+    "validation": {
+      "rows": 1492,
+      "eligible": 1126,
+      "eligible_rate": 0.7546916890080428,
+      "context_unavailable": 366
+    },
+    "test_normal": {
+      "rows": 1395,
+      "eligible": 1082,
+      "eligible_rate": 0.7756272401433691,
+      "context_unavailable": 313
+    }
+  },
+  "scientific_rules": [
+    "Reference split only builds the historical reference.",
+    "Reference observations are excluded from anomaly-model training.",
+    "Validation/test do not update reference.",
+    "Unknown context stays unknown rather than becoming attack.",
+    "No model/scaler/threshold created in this step.",
+    "Frozen source hashes must remain unchanged after split freeze.",
+    "New sessions after freeze are not silently assigned."
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "phase": 4,
+  "step": 16,
+  "component": "windows_native_wifi_scanner",
+  "status": "ctypes_scanner_ready_windows_runtime_validation_pending",
+  "platform": "Windows desktop",
+  "library": "wlanapi.dll",
+  "call_sequence": [
+    "WlanOpenHandle",
+    "WlanEnumInterfaces",
+    "WlanScan",
+    "WlanGetNetworkBssList",
+    "WlanFreeMemory",
+    "WlanCloseHandle"
+  ],
+  "scan_completion_strategy_v1": {
+    "type": "fixed_timeout",
+    "default_seconds": 4.2,
+    "rationale": "WlanScan is asynchronous and Windows logo drivers are expected to complete scan requests within 4 seconds; notification-driven completion is a later hardening step.",
+    "future_hardening": "WlanRegisterNotification + wlan_notification_acm_scan_complete"
+  },
+  "memory_safety": {
+    "WlanEnumInterfaces": "WlanFreeMemory in finally",
+    "WlanGetNetworkBssList": "WlanFreeMemory in finally",
+    "session": "WlanCloseHandle in context manager",
+    "ie_blob_max_bytes": 2324,
+    "bss_list_max_bytes": 16777216,
+    "bss_items_max": 16384,
+    "untrusted_ie_bounds_check": true
+  },
+  "error_states": {
+    "ERROR_ACCESS_DENIED": "location_access_denied with ms-settings:privacy-location",
+    "unsupported_platform": "structured diagnostic status",
+    "native_api_error": "function + Win32 error code"
+  },
+  "output_contract": "NativeWifiBssObservation",
+  "diagnostic": {
+    "module": "desktop.windows.diagnostic",
+    "powershell": "scripts/run_windows_wifi_diagnostic.ps1",
+    "default_output": "reports/desktop/windows_scan_diagnostic.json",
+    "supports_identifier_redaction": true,
+    "supports_cached_no_scan_mode": true,
+    "supports_interface_guid_filter": true
+  },
+  "runtime_validation": {
+    "actual_windows_scan_executed": false,
+    "reason": "Current execution environment is not Windows; only layout, synthetic buffer, fake API and platform-guard tests were executed.",
+    "required_next_environment": "Windows 10/11 machine with Wi-Fi adapter and location permission available"
+  },
+  "next": "Execute Phase-A real Windows collection.",
+  "phase_4_step_17": {
+    "status": "normal_collection_tooling_ready_windows_execution_pending",
+    "collection_module": "desktop.windows.normal_collection",
+    "validation_module": "desktop.windows.runtime_validation",
+    "raw_root": "data/raw/own/windows/<session_id>/",
+    "actual_windows_collection_executed": false
+  }
+}

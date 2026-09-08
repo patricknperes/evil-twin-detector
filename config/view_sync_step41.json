@@ -1,0 +1,44 @@
+{
+  "phase": 4,
+  "step": 41,
+  "title": "Event-driven Dashboard and Networks synchronization",
+  "status": "auto_scan_view_sync_ready_not_windows_executed",
+  "frontend_version": "0.6.0-step41",
+  "event": {
+    "channel": "desktop:auto-scan-completed",
+    "producer": "Electron main / AutoScanScheduler",
+    "consumer": [
+      "DashboardPage",
+      "NetworksPage"
+    ],
+    "payload": [
+      "scanId",
+      "observedAtUtc",
+      "totalNetworks",
+      "highCount",
+      "newHighCount"
+    ],
+    "ssid": false,
+    "bssid": false
+  },
+  "dashboard": {
+    "refreshes_overview": true,
+    "refreshes_trends": true,
+    "polling": false,
+    "full_reload": false,
+    "background_refresh": true
+  },
+  "networks": {
+    "refreshes_latest_networks": true,
+    "polling": false,
+    "full_reload": false,
+    "preserves_query_filter_sort": true,
+    "prunes_only_invalid_expanded_rows": true,
+    "shows_latest_scan_metadata": true
+  },
+  "event_coalescing": true,
+  "real_windows_event_run": false,
+  "npm_install_build": "deferred",
+  "scientific_artifacts_mutated": false,
+  "next": "Implement desktop-wide runtime status/connection UX and synchronize remaining views when needed."
+}

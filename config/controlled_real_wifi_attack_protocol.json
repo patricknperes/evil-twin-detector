@@ -1,0 +1,57 @@
+{
+  "phase": 4,
+  "step": 22,
+  "protocol_version": "1.0.0",
+  "name": "controlled_real_wifi_attack_evaluation_v1",
+  "status": "tooling_ready_not_executed",
+  "scope": "Defensive measurement and evaluation of an already-authorized controlled Wi-Fi anomaly experiment.",
+  "collector_does_not_create_attack": true,
+  "raw_root": "data/raw/own/windows_attack/<session_id>/",
+  "interim_root": "data/interim/own/windows_attack/<session_id>/",
+  "label": 1,
+  "is_synthetic": false,
+  "allowed_scenarios": [
+    "controlled_evil_twin",
+    "controlled_security_downgrade",
+    "controlled_bssid_change",
+    "controlled_channel_change",
+    "controlled_tsf_reset_observation",
+    "other_authorized_wifi_anomaly"
+  ],
+  "authorization": {
+    "required": true,
+    "manifest_field": "authorization.authorized_controlled_experiment"
+  },
+  "privacy_default": {
+    "clear_ssid_bssid": false,
+    "stable_sha256_identifiers": true,
+    "coordinates": false
+  },
+  "forbidden_uses": [
+    "normal reference construction",
+    "StandardScaler fit",
+    "OneClassSVM fit",
+    "threshold calibration",
+    "hyperparameter tuning"
+  ],
+  "evaluation_only": {
+    "uses_frozen_normal_reference": true,
+    "uses_existing_scaler": true,
+    "uses_existing_ocsvm": true,
+    "uses_existing_threshold": true,
+    "updates_any_of_above": false
+  },
+  "metrics_future": [
+    "precision",
+    "recall",
+    "F1",
+    "ROC-AUC",
+    "PR-AUC",
+    "FPR",
+    "FNR",
+    "confusion matrix",
+    "inference time",
+    "end-to-end detection latency",
+    "eligible coverage"
+  ]
+}

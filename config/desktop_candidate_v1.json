@@ -1,0 +1,147 @@
+{
+  "phase": 4,
+  "step": 15,
+  "profile": "desktop_candidate_v1",
+  "status": "feature_contract_ready_retraining_required",
+  "platform": "Windows desktop",
+  "collection_api": "Windows Native Wi-Fi API (wlanapi.dll)",
+  "packet_capture_required": false,
+  "primary_features": [
+    "ssid_bssid_count",
+    "bssid_changed",
+    "security_changed",
+    "security_strength_delta"
+  ],
+  "core_v2_mapping": {
+    "ssid_bssid_count": "supported",
+    "bssid_changed": "supported",
+    "security_changed": "supported_with_per_bss_ie_parser",
+    "security_strength_delta": "supported_with_per_bss_ie_parser",
+    "is_hidden": "not_semantically_compatible_use_ssid_not_broadcast_metadata_only"
+  },
+  "model_reuse": {
+    "reuse_contextual_core_v2_ocsvm": false,
+    "reuse_contextual_core_v2_scaler": false,
+    "reason": "desktop_candidate_v1 has four model features and Windows-specific security/SSID semantics; it must be retrained and calibrated after scanner validation."
+  },
+  "native_bss_fields": {
+    "ssid": "WLAN_BSS_ENTRY.dot11Ssid",
+    "bssid": "WLAN_BSS_ENTRY.dot11Bssid",
+    "rssi_dbm": "WLAN_BSS_ENTRY.lRssi",
+    "beacon_period_tu": "WLAN_BSS_ENTRY.usBeaconPeriod",
+    "tsf_us": "WLAN_BSS_ENTRY.ullTimestamp",
+    "capability_info": "WLAN_BSS_ENTRY.usCapabilityInformation",
+    "center_frequency_khz": "WLAN_BSS_ENTRY.ulChCenterFrequency",
+    "information_elements": "WLAN_BSS_ENTRY.ulIeOffset + ulIeSize"
+  },
+  "security_semantics_v1": {
+    "OPEN": 0,
+    "LEGACY_PRIVACY": 1,
+    "WPA": 2,
+    "WPA2_OR_NEWER": 3,
+    "WPA3_SAE": 4,
+    "notes": "RSN/WPA IEs are parsed per BSS. Privacy bit is only a legacy fallback. WPA3_SAE is identified conservatively by SAE/FT-SAE AKM suites."
+  },
+  "optional_observable_signals": {
+    "rssi_dbm": "direct_available_future_track",
+    "beacon_interval_ms": "direct_available_future_ablation",
+    "tsf_reference_monotonic_violation": "technically_observable_but_ablation_only",
+    "bssid_local_admin_flag": "derivable_but_ablation_only",
+    "advertised_channel_changed": "partial_ie_based_requires_band_aware_validation",
+    "ssid_not_broadcast": "observable_metadata_not_equivalent_to_core_v2_is_hidden"
+  },
+  "not_available_from_wlan_bss_entry": {
+    "sequence_number": "not_directly_exposed",
+    "num_clients": "not_exposed",
+    "frame_length_bytes": "not_directly_exposed"
+  },
+  "windows_privacy": {
+    "precise_location_consent_required_for_affected_wifi_apis": true,
+    "affected_calls": [
+      "WlanScan",
+      "WlanGetNetworkBssList",
+      "WlanGetAvailableNetworkList"
+    ],
+    "access_denied_handling_required": true,
+    "settings_uri": "ms-settings:privacy-location"
+  },
+  "next": "Add history/query APIs for scans, detections and model versions.",
+  "scanner_implementation": {
+    "phase": 4,
+    "step": 16,
+    "status": "ctypes_scanner_ready_windows_runtime_validation_pending",
+    "module": "desktop.windows.wlanapi_ctypes",
+    "high_level_scanner": "desktop.windows.scanner.NativeWifiScanner",
+    "diagnostic": "python -m desktop.windows.diagnostic"
+  },
+  "phase_4_step_19": {
+    "status": "split_and_reference_method_frozen",
+    "minimum_runtime_ready_sessions": 5,
+    "split_unit": "session_id",
+    "reference_frozen": true,
+    "reference_updates_from_validation_or_test": false,
+    "unknown_context_is_attack": false,
+    "model_training_started": false
+  },
+  "phase_4_step_20": {
+    "status": "ml_protocol_and_preparation_gate_frozen",
+    "protocol": "config/desktop_candidate_v1_evaluation_protocol.json",
+    "feature_set": [
+      "ssid_bssid_count",
+      "bssid_changed",
+      "security_changed",
+      "security_strength_delta"
+    ],
+    "scaler_fit_split": "model_train",
+    "planned_primary_model": "OneClassSVM",
+    "threshold_rule": "P95 validation normal",
+    "real_model_trained": false
+  },
+  "phase_4_step_21": {
+    "status": "training_module_ready_not_executed",
+    "algorithm": "OneClassSVM",
+    "score": "-decision_function",
+    "threshold_rule": "P95 validation normal",
+    "real_model_trained": false
+  },
+  "phase_4_step_22": {
+    "status": "real_attack_observer_and_import_ready",
+    "collector_creates_attack": false,
+    "attack_data_evaluation_only": true,
+    "real_attack_sessions": 0
+  },
+  "phase_4_step_23": {
+    "status": "final_fixed_artifact_evaluator_ready",
+    "real_execution": false,
+    "metrics": [
+      "accuracy",
+      "precision",
+      "recall",
+      "F1",
+      "ROC-AUC",
+      "PR-AUC",
+      "FPR",
+      "FNR",
+      "confusion matrix",
+      "test-normal FPR",
+      "attack recall",
+      "recall by attack type",
+      "recall by attack session",
+      "model-only inference time",
+      "attack eligible coverage"
+    ],
+    "synthetic_attack_rejected": true
+  },
+  "phase_4_step_26": {
+    "status": "product_runtime_inference_ready",
+    "real_execution": false,
+    "required_artifacts": [
+      "frozen reference",
+      "StandardScaler",
+      "OneClassSVM",
+      "threshold"
+    ],
+    "unknown_context": "insufficient_history",
+    "runtime_refit": false
+  }
+}

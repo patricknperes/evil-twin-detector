@@ -1,0 +1,57 @@
+{
+  "protocol_version": "1.0.0",
+  "phase": 3,
+  "step": 7,
+  "profile": "PROFILE_RSSI_TEMPORAL_5S",
+  "feature_set": "conservative_v2",
+  "features": [
+    "rssi_std_db",
+    "rssi_delta_db"
+  ],
+  "training": {
+    "fit_data": "train_balanced",
+    "fit_labels": "normal only (label=0)",
+    "scaler": "StandardScaler",
+    "scaler_fit": "train_balanced only"
+  },
+  "score_convention": {
+    "name": "anomaly_score",
+    "direction": "higher_is_more_anomalous",
+    "adapters": {
+      "isolation_forest": "anomaly_score = -decision_function(X)",
+      "one_class_svm": "anomaly_score = -decision_function(X)",
+      "autoencoder": "anomaly_score = reconstruction_error(X)"
+    }
+  },
+  "threshold_calibration": {
+    "split": "validation",
+    "validation_contains": "normal only",
+    "method": "normal_score_quantile",
+    "target_false_positive_rate": 0.05,
+    "quantile": 0.95,
+    "attack_data_used_for_threshold": false,
+    "note": "Como a validação contém apenas normais, o threshold controla FPR; não otimiza recall/F1 de ataque."
+  },
+  "frozen_evaluation": {
+    "normal": "test_normal",
+    "attack": "test_attack_synthetic",
+    "threshold_refit_on_test": false
+  },
+  "metrics": [
+    "precision",
+    "recall",
+    "f1",
+    "accuracy",
+    "roc_auc",
+    "false_positive_rate",
+    "false_negative_rate",
+    "confusion_matrix",
+    "inference_time"
+  ],
+  "primary_interpretation": [
+    "Recall é crítico porque falso negativo significa ataque não detectado.",
+    "FPR deve ser reportado porque excesso de alertas inviabiliza uso prático.",
+    "Accuracy não deve ser interpretada isoladamente.",
+    "O ataque sintético é avaliação auxiliar, não substitui Evil Twin controlado real."
+  ]
+}

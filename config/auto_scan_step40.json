@@ -1,0 +1,42 @@
+{
+  "phase": 4,
+  "step": 40,
+  "title": "Automatic Wi-Fi scan scheduler and desktop notifications",
+  "status": "auto_scan_scheduler_ready_not_windows_executed",
+  "backend_version": "0.8.0-step40",
+  "frontend_version": "0.5.0-step40",
+  "scheduler": {
+    "owner": "Electron main process",
+    "settings_endpoint": "GET /settings",
+    "scan_endpoint": "POST /scan",
+    "minimum_interval_seconds": 10,
+    "disabled_settings_poll_seconds": 5,
+    "dynamic_settings_refresh_ipc": true,
+    "overlapping_local_scans": false,
+    "backend_global_scan_serialization": true
+  },
+  "notifications": {
+    "preference": "high_anomaly_notifications",
+    "only_ready_high_anomalies": true,
+    "new_transition_only": true,
+    "repeat_same_high_each_cycle": false,
+    "ssid_or_bssid_in_notification": false,
+    "states_attack_confirmation": false,
+    "notification_click_focuses_app": true
+  },
+  "backend_scan_conflict": {
+    "http_status": 409,
+    "code": "scan_in_progress"
+  },
+  "scientific_artifacts_mutated": false,
+  "windows_real_scheduler_run": false,
+  "next": "Implement runtime refresh integration across dashboard/networks and complete desktop UX state synchronization.",
+  "frontend_source_validation": {
+    "typescript_files_parsed": 30,
+    "inherited_tsx_cast_syntax_fixed": [
+      "frontend/src/pages/NetworksPage.tsx",
+      "frontend/src/pages/HistoryPage.tsx"
+    ],
+    "npm_build_executed": false
+  }
+}

@@ -1,0 +1,1092 @@
+{
+  "manifest_version": "1.0.0",
+  "phase": 2,
+  "status": "approved",
+  "purpose": "Definir oficialmente os datasets e perfis aprovados para os experimentos do TCC II sobre detecção de anomalias associadas a possíveis ataques Evil Twin.",
+  "global_rules": [
+    "Arquivos originais em data/external nunca devem ser alterados.",
+    "Dados normalizados devem ser gravados em data/interim.",
+    "Dados prontos para ML devem ser gravados em data/processed.",
+    "source_dataset, session_id e environment devem ser preservados.",
+    "Não concatenar datasets indiscriminadamente.",
+    "Não preencher features ausentes com valores inventados.",
+    "Valores sentinela documentados devem ser convertidos para ausente.",
+    "Separação de treino, validação e teste deve considerar sessão, fonte e ambiente.",
+    "Ataques sintéticos do Mendeley não entram no treinamento normal.",
+    "802.11ad não entra inicialmente no modelo desktop.",
+    "O modelo desktop só poderá usar features observáveis de forma confiável no Windows."
+  ],
+  "datasets": {
+    "mendeley_rogue_ap": {
+      "status": "approved",
+      "role": [
+        "main_normal_training",
+        "synthetic_attack_evaluation"
+      ],
+      "normal_profile": {
+        "name": "mendeley_legitimate_real",
+        "rows": 29990,
+        "label": 0,
+        "is_synthetic": false,
+        "usage": "train_validation"
+      },
+      "attack_profile": {
+        "name": "mendeley_synthetic_rogue",
+        "rows": 37786,
+        "label": 1,
+        "is_synthetic": true,
+        "usage": "auxiliary_attack_test_only",
+        "attack_types": {
+          "evil_twin_last_octet": 5398,
+          "hidden_ssid": 5398,
+          "evil_twin_full_oui": 5398,
+          "channel_shift": 5398,
+          "local_admin_bssid": 5398,
+          "security_downgrade": 5398,
+          "tsf_reset": 5398
+        }
+      },
+      "available_core_features": [
+        "rssi_dbm",
+        "channel",
+        "advertised_channel",
+        "beacon_interval_ms",
+        "security_type",
+        "sequence_number",
+        "vendor",
+        "oui",
+        "is_hidden"
+      ],
+      "limitations": [
+        "BeaconInterval normal possui baixa ou nenhuma variabilidade nesta base.",
+        "Existem registros sem SSID.",
+        "Ataques Rogue são sintéticos e não substituem avaliação com Evil Twin real/controlado."
+      ]
+    },
+    "zenodo_v2i": {
+      "status": "approved",
+      "role": [
+        "complementary_normal_training",
+        "desktop_auxiliary"
+      ],
+      "profiles": {
+        "beacon_80211n": {
+          "name": "v2i_beacon_profile",
+          "rows": 14812,
+          "usage": "train_validation",
+          "required_conditions": [
+            "wifi_standard == 802.11n",
+            "rssi_dbm is not null",
+            "beacon_interval_ms is not null"
+          ]
+        },
+        "desktop_aux": {
+          "name": "v2i_desktop_aux",
+          "rows": 31044,
+          "usage": "auxiliary_experiments",
+          "standards": [
+            "802.11n",
+            "802.11ac"
+          ]
+        },
+        "80211ad_aux": {
+          "name": "v2i_80211ad_aux",
+          "rows": 15522,
+          "usage": "excluded_from_initial_desktop_model"
+        }
+      },
+      "available_core_features": [
+        "rssi_dbm",
+        "rssi_all_frames_mean_dbm",
+        "frequency_mhz",
+        "channel_width_mhz",
+        "channel_utilization_pct",
+        "beacon_interval_ms",
+        "beacon_count",
+        "wifi_standard",
+        "num_clients"
+      ],
+      "limitations": [
+        "meanBeaconRssi usa -100 como sentinela de ausência.",
+        "meanInterBeaconTime usa 1 segundo como sentinela de ausência.",
+        "Não possui SSID/BSSID reais nem informações de segurança equivalentes ao Mendeley.",
+        "802.11ad permanece fora do primeiro modelo desktop."
+      ]
+    },
+    "zenodo_longterm_wifi": {
+      "status": "approved",
+      "role": [
+        "robustness_evaluation",
+        "temporal_generalization"
+      ],
+      "profile": {
+        "name": "longterm_temporal_rssi_channel",
+        "samples": 382832,
+        "flattened_ap_observations": 13471554,
+        "usage": "robustness_test"
+      },
+      "available_core_features": [
+        "timestamp",
+        "session_id",
+        "location_id",
+        "collector_id",
+        "ap_id",
+        "rssi_dbm",
+        "channel",
+        "frequency_mhz"
+      ],
+      "limitations": [
+        "Não possui segurança, beacon interval ou número de clientes.",
+        "APs são identificadores anonimizados.",
+        "Deve participar apenas de experimentos compatíveis com RSSI/canal/tempo."
+      ]
+    },
+    "zenodo_station_management_frames": {
+      "status": "approved",
+      "role": [
+        "robustness_evaluation",
+        "false_positive_evaluation"
+      ],
+      "profile": {
+        "name": "station_public_environment",
+        "frames": 97290,
+        "beacons": 47676,
+        "probe_responses": 47236,
+        "probe_requests": 2378,
+        "usage": "normal_unseen_environment_test"
+      },
+      "available_core_features": [
+        "timestamp",
+        "ssid",
+        "bssid",
+        "rssi_dbm",
+        "frame_type",
+        "receiver_address",
+        "transmitter_address"
+      ],
+      "limitations": [
+        "SSID e endereços MAC foram anonimizados pelos autores.",
+        "CSV não contém canal, segurança ou beacon interval.",
+        "BSSID não deve ser inferido para Probe Request."
+      ]
+    },
+    "own_collection": {
+      "status": "planned",
+      "role": [
+        "main_normal_training",
+        "real_controlled_attack_evaluation",
+        "desktop_compatibility_validation"
+      ],
+      "profiles": {
+        "normal": {
+          "name": "own_normal_windows_scans",
+          "usage": "train_validation_test"
+        },
+        "evil_twin_controlled": {
+          "name": "own_controlled_evil_twin",
+          "usage": "primary_attack_test"
+        }
+      },
+      "requirements": [
+        "Coleta somente em ambiente autorizado/controlado.",
+        "Usar o mesmo scanner Windows planejado para a aplicação final.",
+        "Registrar session_id e environment.",
+        "Separar sessões de ataque das sessões normais."
+      ]
+    }
+  },
+  "experiment_profiles": {
+    "PROFILE_CORE": {
+      "status": "processed_profile_available",
+      "processed_profile": "PROFILE_RSSI_TEMPORAL_5S",
+      "candidate_features": [
+        "rssi_mean_dbm",
+        "rssi_std_db",
+        "rssi_min_dbm",
+        "rssi_max_dbm",
+        "rssi_delta_db",
+        "window_count"
+      ],
+      "datasets": [
+        "mendeley_rogue_ap",
+        "zenodo_v2i"
+      ],
+      "note": "Long-term e Station permanecem perfis de robustez separados."
+    },
+    "PROFILE_BEACON": {
+      "status": "processed_requires_source_bias_control",
+      "processed_profile": "PROFILE_BEACON_1S",
+      "candidate_features": [
+        "rssi_mean_dbm",
+        "beacon_count",
+        "observed_inter_beacon_ms",
+        "frequency_mhz"
+      ],
+      "configured_beacon_feature": "configured_beacon_interval_ms",
+      "datasets": [
+        "mendeley_rogue_ap",
+        "zenodo_v2i:v2i_beacon_profile"
+      ],
+      "candidate_features_initial": [
+        "rssi_mean_dbm",
+        "frequency_mhz"
+      ],
+      "source_sensitive_auxiliary": [
+        "beacon_count",
+        "observed_inter_beacon_ms"
+      ],
+      "validation_note": "Mendeley observed_inter_beacon_ms apresentou mediana ~1573,5 ms, contra ~136,6 ms no V2I, indicando forte efeito do método de coleta."
+    },
+    "PROFILE_SECURITY": {
+      "goal": "Avaliar sinais ligados à configuração e identidade da rede.",
+      "candidate_features": [
+        "rssi_dbm",
+        "channel",
+        "advertised_channel",
+        "beacon_interval_ms",
+        "security_type",
+        "is_hidden"
+      ],
+      "datasets": [
+        "mendeley_rogue_ap",
+        "own_collection"
+      ]
+    },
+    "PROFILE_DESKTOP": {
+      "goal": "Features que poderão ser reproduzidas pelo scanner da aplicação Windows.",
+      "candidate_features": [
+        "rssi_mean_dbm",
+        "rssi_std_db",
+        "rssi_delta_db",
+        "channel",
+        "frequency_mhz",
+        "wifi_band",
+        "security_type",
+        "configured_beacon_interval_ms",
+        "ssid_bssid_count",
+        "bssid_changed",
+        "channel_changed",
+        "security_changed"
+      ],
+      "datasets": [
+        "mendeley_rogue_ap",
+        "zenodo_v2i:v2i_beacon_profile",
+        "own_collection"
+      ],
+      "status": "candidate_until_windows_scanner_validation"
+    }
+  },
+  "approved_experimental_sequence": [
+    {
+      "id": "E1",
+      "train": "own_normal",
+      "test": "own_normal_unseen_sessions",
+      "purpose": "baseline próprio"
+    },
+    {
+      "id": "E2",
+      "train": "own_normal + mendeley_normal",
+      "test": "own_normal_unseen_sessions",
+      "purpose": "efeito de adicionar dados públicos alinhados"
+    },
+    {
+      "id": "E3",
+      "train": "own_normal + mendeley_normal + v2i_beacon",
+      "test": "unseen_normal_environment",
+      "purpose": "generalização entre ambientes"
+    },
+    {
+      "id": "E4",
+      "train": "varied_normal",
+      "test": "station + longterm compatible profiles",
+      "purpose": "falsos positivos e robustez"
+    },
+    {
+      "id": "E5",
+      "train": "varied_normal",
+      "test": "mendeley_synthetic_rogue",
+      "purpose": "teste auxiliar por tipo de anomalia"
+    },
+    {
+      "id": "E6",
+      "train": "varied_normal_desktop_features",
+      "test": "own_controlled_evil_twin",
+      "purpose": "avaliação principal do modelo de produção"
+    }
+  ],
+  "methodological_corrections": [
+    {
+      "phase": 3,
+      "step": 2,
+      "correction": "Não considerar BeaconInterval configurado do Mendeley e meanInterBeaconTime medido do V2I como a mesma feature cross-source.",
+      "resolution": "Criar observed_inter_beacon_ms para comparação multi-source e manter configured_beacon_interval_ms separado para perfil desktop."
+    }
+  ],
+  "data_split_policy": {
+    "version": "1.0",
+    "phase": 3,
+    "step": 4,
+    "normal_only_train_validation_test": true,
+    "mendeley_group": "network_identity_id",
+    "v2i_group": "session_id",
+    "train_balance": "equal_source_downsampling",
+    "validation_test_balance": "none",
+    "synthetic_attacks": "attack_test_only",
+    "quality_profile": "TEMPORAL_RICH"
+  },
+  "baseline_feature_sets": {
+    "phase": 3,
+    "step": 5,
+    "conservative_v1": [
+      "rssi_std_db",
+      "rssi_delta_db",
+      "window_count"
+    ],
+    "complete_v1": [
+      "rssi_mean_dbm",
+      "rssi_std_db",
+      "rssi_min_dbm",
+      "rssi_max_dbm",
+      "rssi_delta_db",
+      "window_count"
+    ],
+    "status": "frozen_for_first_baseline",
+    "conservative_v1_status": "superseded_due_to_source_leakage",
+    "conservative_v2": [
+      "rssi_std_db",
+      "rssi_delta_db"
+    ],
+    "conservative_v2_status": "approved_for_first_anomaly_baseline",
+    "complete_v1_status": "ablation_only_high_source_leakage"
+  },
+  "source_leakage_step6": {
+    "conservative_v1_test_balanced_accuracy": 0.9629517119169673,
+    "conservative_v2_test_balanced_accuracy": 0.5528479210176571,
+    "complete_v1_test_balanced_accuracy": 0.9804189608252643,
+    "approved_primary": "conservative_v2"
+  },
+  "anomaly_detection_protocol": {
+    "phase": 3,
+    "step": 7,
+    "status": "frozen",
+    "feature_set": "conservative_v2",
+    "train_split": "train_balanced",
+    "normal_only_fit": true,
+    "scaler_fit": "train_only",
+    "anomaly_score_direction": "higher_is_more_anomalous",
+    "threshold_calibration": "validation_normal_p95",
+    "target_validation_fpr": 0.05,
+    "attack_used_for_threshold": false,
+    "next": "Isolation Forest"
+  },
+  "models": {
+    "isolation_forest_v1": {
+      "phase": 4,
+      "step": 1,
+      "status": "trained_and_evaluated",
+      "feature_set": "conservative_v2",
+      "threshold": 0.046395292798221945,
+      "target_validation_fpr": 0.05,
+      "test_normal_fpr": 0.09295570079883805,
+      "test_attack_recall": 0.1204730229120473,
+      "test_attack_f1": 0.19829683698296838,
+      "roc_auc": 0.4997380682858126,
+      "pr_auc": 0.5131761329586932
+    },
+    "one_class_svm_v1": {
+      "phase": 4,
+      "step": 2,
+      "status": "trained_and_evaluated",
+      "feature_set": "conservative_v2",
+      "threshold": 0.0003285758589015586,
+      "target_validation_fpr": 0.05,
+      "test_normal_fpr": 0.0457516339869281,
+      "test_attack_recall": 0.04582409460458241,
+      "test_attack_f1": 0.08389715832205684,
+      "roc_auc": 0.5139916085237303,
+      "pr_auc": 0.5065885920428863,
+      "config": {
+        "kernel": "rbf",
+        "gamma": "scale",
+        "nu": 0.05,
+        "shrinking": true,
+        "cache_size": 512
+      }
+    },
+    "autoencoder_v1": {
+      "phase": 4,
+      "step": 3,
+      "status": "trained_and_evaluated",
+      "framework": "PyTorch",
+      "architecture": [
+        2,
+        4,
+        1,
+        4,
+        2
+      ],
+      "feature_set": "conservative_v2",
+      "threshold": 0.6018882453441613,
+      "target_validation_fpr": 0.05,
+      "test_normal_fpr": 0.054466230936819175,
+      "test_attack_recall": 0.07169253510716925,
+      "test_attack_f1": 0.12721311475409836,
+      "roc_auc": 0.40913814267871335,
+      "pr_auc": 0.44764901510148103
+    },
+    "isolation_forest_contextual_v1": {
+      "phase": 4,
+      "step": 7,
+      "track": "TRACK_E_EVIL_TWIN_CONTEXT",
+      "status": "trained_and_evaluated",
+      "feature_set": "contextual_full_v1",
+      "threshold": 0.22951226163430716,
+      "test_normal_fpr": 0.031733942625031736,
+      "eligible_attack_recall": 0.038328136495813334,
+      "eligible_attack_f1": 0.07351656474699281,
+      "roc_auc": 0.5705316520834397,
+      "pr_auc": 0.9148423838708709,
+      "unused_constant_normal_features": [
+        "bssid_changed",
+        "security_changed",
+        "security_strength_delta",
+        "is_hidden"
+      ]
+    },
+    "one_class_svm_contextual_v1": {
+      "phase": 4,
+      "step": 8,
+      "track": "TRACK_E_EVIL_TWIN_CONTEXT",
+      "status": "trained_and_evaluated",
+      "feature_set": "contextual_full_v1",
+      "threshold": 0.00060340752200716,
+      "test_normal_fpr": 0.002538715410002539,
+      "eligible_attack_recall": 0.7979889990540587,
+      "eligible_attack_f1": 0.8874732125462692,
+      "roc_auc": 0.9012672515220174,
+      "pr_auc": 0.9871997256896422,
+      "config": {
+        "kernel": "rbf",
+        "gamma": "scale",
+        "nu": 0.05,
+        "shrinking": true,
+        "cache_size": 512
+      }
+    },
+    "autoencoder_contextual_v1": {
+      "phase": 4,
+      "step": 9,
+      "track": "TRACK_E_EVIL_TWIN_CONTEXT",
+      "status": "trained_and_evaluated",
+      "feature_set": "contextual_full_v1",
+      "architecture": [
+        6,
+        8,
+        3,
+        8,
+        6
+      ],
+      "threshold": 1.3316604054125492e-05,
+      "test_normal_fpr": 0.031733942625031736,
+      "eligible_attack_recall": 0.8014574501629121,
+      "eligible_attack_f1": 0.8876299860313519,
+      "roc_auc": 0.8997645993635717,
+      "pr_auc": 0.987271019240421
+    },
+    "contextual_variable_only_ablation": {
+      "phase": 4,
+      "step": 10,
+      "Isolation Forest": {
+        "recall": 0.038328136495813334,
+        "f1": 0.07351656474699281,
+        "roc_auc": 0.5705316520834397,
+        "fpr": 0.031733942625031736
+      },
+      "One-Class SVM": {
+        "recall": 0.01741232526363732,
+        "f1": 0.034216867469879515,
+        "roc_auc": 0.46910018321746255,
+        "fpr": 0.002538715410002539
+      },
+      "Autoencoder": {
+        "recall": 0.14500928423781662,
+        "f1": 0.25267077711983393,
+        "roc_auc": 0.5457793858532295,
+        "fpr": 0.02030972328002031
+      }
+    },
+    "isolation_forest_core_v2": {
+      "phase": 4,
+      "step": 14,
+      "profile": "contextual_core_v2",
+      "status": "trained_and_evaluated",
+      "precision": 0.8464619492656876,
+      "recall": 0.022212101040535333,
+      "f1": 0.04328826983476717,
+      "roc_auc": 0.5124743623586605,
+      "false_positive_rate": 0.029195227215029197,
+      "false_negative_rate": 0.9777878989594647,
+      "pr_auc": 0.8890782062648419
+    },
+    "one_class_svm_core_v2": {
+      "phase": 4,
+      "step": 14,
+      "profile": "contextual_core_v2",
+      "status": "trained_and_evaluated",
+      "precision": 1.0,
+      "recall": 0.7975685807378341,
+      "f1": 0.8873859826927575,
+      "roc_auc": 0.9026487314512365,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.20243141926216585,
+      "pr_auc": 0.9877588654475012
+    },
+    "autoencoder_core_v2": {
+      "phase": 4,
+      "step": 14,
+      "profile": "contextual_core_v2",
+      "status": "trained_and_evaluated",
+      "precision": 0.996948694477137,
+      "recall": 0.8012822758644852,
+      "f1": 0.8884702043353275,
+      "roc_auc": 0.9001646718454397,
+      "false_positive_rate": 0.01777100787001777,
+      "false_negative_rate": 0.19871772413551483,
+      "pr_auc": 0.9873938336611866
+    }
+  },
+  "phase4_baseline_comparison": {
+    "phase": 4,
+    "step": 4,
+    "status": "completed",
+    "feature_set": "conservative_v2",
+    "models": {
+      "Isolation Forest": {
+        "recall": 0.1204730229120473,
+        "f1": 0.19829683698296838,
+        "roc_auc": 0.4997380682858126,
+        "fpr": 0.09295570079883805
+      },
+      "One-Class SVM": {
+        "recall": 0.04582409460458241,
+        "f1": 0.08389715832205684,
+        "roc_auc": 0.5139916085237303,
+        "fpr": 0.0457516339869281
+      },
+      "Autoencoder": {
+        "recall": 0.07169253510716925,
+        "f1": 0.12721311475409836,
+        "roc_auc": 0.40913814267871335,
+        "fpr": 0.054466230936819175
+      }
+    },
+    "conclusion": "Nenhum dos três modelos é candidato a produção com conservative_v2; próxima melhoria é feature engineering contextual.",
+    "next_feature_profile": "evil_twin_contextual_v1"
+  },
+  "experimental_tracks": {
+    "TRACK_G_GENERALIZATION": {
+      "name": "multisource_generalization",
+      "status": "keep_as_baseline",
+      "feature_set": "conservative_v2",
+      "features": [
+        "rssi_std_db",
+        "rssi_delta_db"
+      ],
+      "sources": [
+        "Mendeley normal",
+        "V2I normal"
+      ],
+      "purpose": "Responder se sinais temporais de RSSI com baixo source leakage generalizam entre ambientes.",
+      "limitation": "Não representa toda a semântica de Evil Twin e apresentou baixo poder discriminativo contra ataques sintéticos."
+    },
+    "TRACK_E_EVIL_TWIN_CONTEXT": {
+      "name": "evil_twin_contextual_v1",
+      "status": "next_feature_engineering_target",
+      "sources": [
+        "Mendeley",
+        "future own controlled collection"
+      ],
+      "purpose": "Detectar mudanças contextuais relevantes a Rogue/Evil Twin sem exigir que V2I forneça campos que ele não possui.",
+      "candidate_derived_features": [
+        {
+          "feature": "ssid_bssid_count",
+          "origin": "SSID/BSSID grouping",
+          "desktop_candidate": true,
+          "risk": "Não usar SSID/BSSID crus como número; somente contagem/estado."
+        },
+        {
+          "feature": "bssid_changed",
+          "origin": "mudança de BSSID observada para o mesmo SSID ao longo do tempo",
+          "desktop_candidate": true,
+          "risk": "Precisa de histórico e comparação contextual."
+        },
+        {
+          "feature": "channel_changed",
+          "origin": "mudança temporal de canal do mesmo identificador/rede",
+          "desktop_candidate": true,
+          "risk": "Mudanças legítimas existem; não é prova isolada de ataque."
+        },
+        {
+          "feature": "security_changed",
+          "origin": "mudança temporal de security_type para a mesma identidade lógica",
+          "desktop_candidate": true,
+          "risk": "Exige baseline histórico da rede."
+        },
+        {
+          "feature": "security_strength_delta",
+          "origin": "comparação ordinal de segurança dentro do contexto da rede",
+          "desktop_candidate": true,
+          "risk": "A codificação ordinal precisa ser explícita e não usada como identidade."
+        },
+        {
+          "feature": "bssid_local_admin_flag",
+          "origin": "bit U/L do primeiro octeto do BSSID",
+          "desktop_candidate": true,
+          "risk": "Pode detectar a construção synthetic local_admin_bssid de forma muito direta. Deve ser avaliada separadamente para não confundir regra específica com generalização."
+        },
+        {
+          "feature": "tsf_monotonic_violation",
+          "origin": "BeaconTimestamp/TSF temporal",
+          "desktop_candidate": false,
+          "risk": "Disponibilidade no scanner Windows ainda não foi validada; usar apenas no experimento acadêmico se observável."
+        },
+        {
+          "feature": "observed_channel_vs_advertised_mismatch",
+          "origin": "Channel vs DSChannel/advertised channel",
+          "desktop_candidate": "pending_scanner_validation",
+          "risk": "Semântica depende do método de captura."
+        },
+        {
+          "feature": "configured_beacon_interval_ms",
+          "origin": "BeaconInterval configurado",
+          "desktop_candidate": "pending_scanner_validation",
+          "risk": "No Mendeley normal é quase constante; isoladamente tem pouco valor."
+        },
+        {
+          "feature": "is_hidden",
+          "origin": "estado de SSID oculto",
+          "desktop_candidate": true,
+          "risk": "Rede oculta pode ser legítima; usar apenas como contexto."
+        }
+      ],
+      "strict_exclusions": [
+        "_rogue_type",
+        "is_rogue",
+        "labels derivados pelo gerador sintético",
+        "flags sintéticas prontas do dataset processado",
+        "SSID cru como feature numérica",
+        "BSSID cru como feature numérica",
+        "source_dataset",
+        "session_id"
+      ]
+    },
+    "TRACK_D_DESKTOP": {
+      "name": "desktop_candidate_v1",
+      "status": "pending_windows_scanner",
+      "purpose": "Congelar somente features que a aplicação Windows consiga medir de forma confiável em tempo de execução.",
+      "candidate_features": [
+        "rssi_std_db",
+        "rssi_delta_db",
+        "ssid_bssid_count",
+        "bssid_changed",
+        "channel_changed",
+        "security_changed",
+        "security_strength_delta",
+        "bssid_local_admin_flag",
+        "is_hidden"
+      ],
+      "rule": "A lista final só será aprovada depois do protótipo do scanner Windows."
+    }
+  },
+  "contextual_profile": {
+    "phase": 4,
+    "step": 5,
+    "name": "evil_twin_contextual_v1",
+    "status": "contextual_core_v2_formalized",
+    "track": "TRACK_E_EVIL_TWIN_CONTEXT",
+    "features": [
+      "ssid_bssid_count",
+      "bssid_changed",
+      "channel_changed",
+      "security_changed",
+      "security_strength_delta",
+      "is_hidden",
+      "configured_beacon_interval_ms"
+    ],
+    "reference_split": 0.4,
+    "model_train_split": 0.3,
+    "validation_split": 0.15,
+    "test_split": 0.15,
+    "reference_frozen_before_validation": true,
+    "synthetic_attack_used_to_build_reference": false,
+    "next": "Prepare desktop_candidate_v1 from Windows-observable features",
+    "primary_feature_set": "contextual_full_v1",
+    "primary_features": [
+      "ssid_bssid_count",
+      "bssid_changed",
+      "security_changed",
+      "security_strength_delta",
+      "is_hidden"
+    ],
+    "globally_constant_removed": [
+      "configured_beacon_interval_ms"
+    ],
+    "ablation_step10": {
+      "status": "completed",
+      "control_feature_set": "contextual_variable_only_v1",
+      "control_features": [
+        "ssid_bssid_count",
+        "channel_changed"
+      ],
+      "removed_event_features": [
+        "bssid_changed",
+        "security_changed",
+        "security_strength_delta",
+        "is_hidden"
+      ],
+      "current_operational_candidate": "One-Class SVM + contextual_full_v1",
+      "candidate_not_final": true
+    },
+    "protocol_specific_ablations": {
+      "tsf_v1": {
+        "phase": 4,
+        "step": 11,
+        "status": "ablation_only_not_promoted",
+        "feature": "tsf_reference_monotonic_violation",
+        "synthetic_scenario": "tsf_reset",
+        "combined_eligible_attack_rows": 4362,
+        "synthetic_scenario_coverage": 0.8080770655798444,
+        "normal_test_violation_rate": 0.0,
+        "synthetic_violation_rate": 1.0,
+        "ocsvm_control_recall": 0.020174232003668042,
+        "ocsvm_plus_tsf_recall": 1.0,
+        "promoted_to_primary": false,
+        "desktop_availability": "not_validated"
+      },
+      "local_admin_v1": {
+        "phase": 4,
+        "step": 12,
+        "status": "ablation_only_not_promoted",
+        "feature": "bssid_local_admin_flag",
+        "synthetic_scenario": "local_admin_bssid",
+        "normal_unique_bssid_local_admin_rate": 0.37714285714285717,
+        "synthetic_local_admin_rate": 1.0,
+        "ocsvm_control_recall": 0.761925318368228,
+        "ocsvm_plus_feature_recall": 0.784804662205914,
+        "promoted_to_primary": false
+      }
+    },
+    "channel_semantics_review": {
+      "phase": 4,
+      "step": 13,
+      "status": "completed",
+      "capture_channel_changed": "deprecated_for_primary_channel_semantics",
+      "capture_advertised_mismatch": "rejected_as_primary_attack_feature",
+      "advertised_channel_changed": "real_world_candidate_not_validated_by_channel_shift_synthetic",
+      "contextual_full_v1": "superseded_pending_contextual_v2",
+      "contextual_core_v2_candidate_features": [
+        "ssid_bssid_count",
+        "bssid_changed",
+        "security_changed",
+        "security_strength_delta",
+        "is_hidden"
+      ]
+    },
+    "operational_candidate_revision": {
+      "previous": "One-Class SVM + contextual_full_v1",
+      "status": "methodology_revision_required",
+      "reason": "contextual_full_v1 contains capture-based channel_changed",
+      "next_candidate": "One-Class SVM + contextual_core_v2 pending formal evaluation"
+    },
+    "primary_profile": "contextual_core_v2",
+    "deprecated_features": {
+      "channel_changed": "capture-based channel semantics; deprecated in Step 13"
+    },
+    "operational_candidate": {
+      "model": "One-Class SVM",
+      "feature_set": "contextual_core_v2",
+      "not_final": true
+    }
+  },
+  "desktop_candidate_v1": {
+    "phase": 4,
+    "step": 15,
+    "status": "feature_contract_ready_retraining_required",
+    "features": [
+      "ssid_bssid_count",
+      "bssid_changed",
+      "security_changed",
+      "security_strength_delta"
+    ],
+    "packet_capture_required": false,
+    "core_v2_model_reusable": false,
+    "is_hidden_status": "not_semantically_compatible",
+    "windows_location_consent_required": true,
+    "next": "ctypes wlanapi scanner and Windows validation"
+  },
+  "own_windows_collection": {
+    "phase": 4,
+    "step": 21,
+    "status": "desktop_ocsvm_training_tooling_ready_real_data_blocked",
+    "protocol": "config/own_normal_collection_protocol.json",
+    "raw_root": "data/raw/own/windows",
+    "session_grouping": "session_id",
+    "actual_sessions_collected": 0,
+    "desktop_training_blocked": true,
+    "import_module": "desktop.windows.import_own_normal",
+    "interim_root": "data/interim/own/windows",
+    "actual_sessions_imported": 0,
+    "minimum_sessions_for_strict_split": 5,
+    "split_unit": "session_id",
+    "reference_sessions": 1,
+    "model_train_sessions": 2,
+    "validation_sessions": 1,
+    "test_normal_sessions": 1,
+    "actual_runtime_ready_sessions": 0,
+    "desktop_reference_built_from_real_data": false,
+    "desktop_evaluation_protocol": "config/desktop_candidate_v1_evaluation_protocol.json",
+    "ml_preparation_module": "desktop.windows.prepare_desktop_ml",
+    "minimum_runtime_ready_sessions": 5,
+    "actual_ml_matrices_created": false,
+    "actual_scaler_fitted": false,
+    "actual_model_trained": false,
+    "training_module": "desktop.windows.train_desktop_ocsvm",
+    "real_model_trained": false,
+    "real_threshold_calibrated": false,
+    "real_attack_evaluated": false
+  },
+  "own_windows_attack_collection": {
+    "phase": 4,
+    "step": 22,
+    "status": "tooling_ready_not_executed",
+    "raw_root": "data/raw/own/windows_attack",
+    "interim_root": "data/interim/own/windows_attack",
+    "real_sessions": 0,
+    "label": 1,
+    "is_synthetic": false,
+    "evaluation_only": true,
+    "authorization_required": true
+  },
+  "desktop_final_evaluation": {
+    "phase": 4,
+    "step": 23,
+    "status": "tooling_ready_not_executed",
+    "protocol": "config/desktop_final_evaluation_protocol.json",
+    "module": "desktop.windows.evaluate_frozen_desktop_model",
+    "real_metrics_available": false,
+    "synthetic_attack_allowed": false
+  },
+  "product_backend": {
+    "phase": 4,
+    "step": 52,
+    "status": "privacy_safe_diagnostics_ready",
+    "host": "127.0.0.1",
+    "port": 8765,
+    "database": "SQLite",
+    "orm": "SQLAlchemy",
+    "migrations": "Alembic",
+    "clear_network_identifiers_persisted": false,
+    "model_inference": true,
+    "real_model_artifacts_present": false,
+    "real_runtime_inference_executed": false,
+    "network_features_persistence": true,
+    "detection_persistence": true,
+    "model_version_persistence": true,
+    "history_read_api": true,
+    "history_clear_identifiers": false,
+    "dashboard_api": true,
+    "frontend": false,
+    "settings_api": true,
+    "settings_persistent": true,
+    "scientific_artifacts_user_mutable": false,
+    "backend_version": "1.4.0-step52",
+    "runtime_resource_paths": true,
+    "writable_app_data_path": true,
+    "alembic_before_uvicorn": true,
+    "pyinstaller_spec": true,
+    "backend_exe_created": false,
+    "scan_concurrency_lock": true,
+    "scan_conflict_status": 409,
+    "scanner_runtime_status_tracking": true,
+    "scanner_location_denied_status": true,
+    "scanner_recovery_to_ready": true,
+    "diagnostics_support_bundle": true,
+    "diagnostics_clear_wifi_identifiers": false,
+    "diagnostics_filesystem_paths": false,
+    "runtime_artifact_integrity": true,
+    "model_status_integrity_aware": true
+  },
+  "product_frontend": {
+    "phase": 4,
+    "step": 52,
+    "status": "source_type_hardening_ready_registry_blocked",
+    "react": true,
+    "typescript": true,
+    "vite": true,
+    "electron": true,
+    "tailwind_css": true,
+    "material_ui": false,
+    "recharts": true,
+    "dashboard_overview_connected": true,
+    "dashboard_trends_connected": true,
+    "npm_install": false,
+    "frontend_build_executed": false,
+    "scan_page": true,
+    "windows_location_settings_ipc": true,
+    "real_windows_scan_executed": false,
+    "networks_page": true,
+    "history_page": true,
+    "history_model_audit": true,
+    "history_clear_identifiers": false,
+    "model_page": true,
+    "model_artifact_status": true,
+    "model_version_audit": true,
+    "scientific_artifact_mutation": false,
+    "settings_page": true,
+    "settings_patch": true,
+    "settings_reset": true,
+    "scientific_policy_read_only": true,
+    "auto_scan_scheduler": false,
+    "electron_backend_autostart": true,
+    "electron_waits_backend_health": true,
+    "electron_stops_owned_backend": true,
+    "backend_packaged_executable": false,
+    "installer": false,
+    "backend_resource_directory": "frontend/resources/backend",
+    "backend_exe_created": false,
+    "vite_relative_base": true,
+    "hash_router": true,
+    "electron_builder": true,
+    "nsis": true,
+    "windows_x64": true,
+    "backend_extra_resource": true,
+    "code_signing": false,
+    "electron_auto_scan_scheduler": true,
+    "high_suspicion_notifications": true,
+    "notification_contains_clear_wifi_identifiers": false,
+    "scheduler_runtime_status_ui": true,
+    "frontend_version": "1.2.0-step52",
+    "dashboard_auto_scan_event_refresh": true,
+    "networks_auto_scan_event_refresh": true,
+    "dashboard_polling": false,
+    "networks_polling": false,
+    "renderer_full_reload": false,
+    "auto_scan_event_coalescing": true,
+    "runtime_status_provider": true,
+    "backend_recovery_banner": true,
+    "sidebar_runtime_panel": true,
+    "settings_scheduler_local_polling": false,
+    "full_renderer_reload": false,
+    "history_auto_scan_refresh": true,
+    "model_auto_scan_refresh": true,
+    "diagnostics_page": true,
+    "diagnostics_json_export": true,
+    "diagnostics_automatic_upload": false,
+    "dependency_resolved_validation": false,
+    "npm_registry_reachable": false,
+    "offline_auxiliary_tsc": true,
+    "temporary_type_stubs_committed": false,
+    "desktop_integration_scenarios": true,
+    "renderer_electron_e2e_source": true,
+    "renderer_electron_e2e_executed": false
+  },
+  "desktop_scientific_preflight": {
+    "phase": 4,
+    "step": 44,
+    "status": "implemented_blocked_no_real_sessions",
+    "schema": "desktop_scientific_preflight_v1",
+    "duplicate_content_blocker": true,
+    "immutable_ready_split": true,
+    "source_hash_freeze": true,
+    "new_sessions_auto_assigned_after_freeze": false,
+    "current_real_sessions": 0,
+    "freeze_created": false
+  },
+  "desktop_artifact_lineage": {
+    "phase": 4,
+    "step": 45,
+    "status": "implemented_not_executed_real_data",
+    "schema": "desktop_artifact_lineage_v1",
+    "threshold_schema": "desktop_threshold_v2",
+    "scaled_matrix_hashes": true,
+    "scaler_sha256_binding": true,
+    "model_sha256_binding": true,
+    "reference_sha256_binding": true,
+    "runtime_mixed_bundle_blocker": true,
+    "attack_reference_binding": true,
+    "current_real_lineage": false
+  },
+  "final_execution_readiness": {
+    "phase": 4,
+    "step": 46,
+    "schema": "final_execution_readiness_v1",
+    "status": "implementation_ready_real_execution_blocked",
+    "single_preflight": true,
+    "windows_collection": true,
+    "scientific_freeze": true,
+    "artifact_lineage": true,
+    "controlled_real_attack": true,
+    "fixed_artifact_final_evaluation": true,
+    "frontend_build": true,
+    "pyinstaller": true,
+    "nsis": true,
+    "code_signing_required": false
+  },
+  "desktop_integration": {
+    "phase": 4,
+    "step": 48,
+    "status": "deterministic_integration_ready_not_real_windows",
+    "schema": "desktop_integration_step48_v1",
+    "backend_scenarios": true,
+    "electron_scheduler_real_http": true,
+    "real_windows_native_wifi": false,
+    "real_scientific_artifacts": false
+  },
+  "renderer_electron_e2e": {
+    "phase": 4,
+    "step": 49,
+    "status": "implemented_execution_pending_dependencies",
+    "playwright": true,
+    "electron": true,
+    "fake_backend": true,
+    "real_native_wifi": false,
+    "real_scientific_bundle": false,
+    "os_notifications": false
+  },
+  "final_tcc_results": {
+    "phase": 4,
+    "step": 50,
+    "schema": "tcc_final_results_bundle_v1",
+    "status": "implemented_not_executed",
+    "requires_real_fixed_artifact_evaluation": true,
+    "aggregate_only": true,
+    "row_level_scores_copied": false,
+    "synthetic_attack_allowed": false,
+    "metrics_recomputed": true,
+    "frozen_artifact_hashes_rechecked": true
+  },
+  "release_hardening": {
+    "phase": 4,
+    "step": 51,
+    "status": "implemented_release_blocked_until_all_gates_ready",
+    "release_preflight": true,
+    "windows_powershell_5_1_contract": true,
+    "powershell_7_contract": true,
+    "iswindows_dependency_removed": true,
+    "nsis_guarded_by_release_preflight": true,
+    "post_build_release_manifest": true,
+    "code_signing_required": false
+  },
+  "implementation_freeze_step52": {
+    "status": "implementation_review_in_progress_snapshot_pending",
+    "normal_windows_collection_started": false,
+    "minimum_normal_sessions": 5,
+    "recommended_normal_sessions": 9,
+    "normal_cohort_environment_count": 1,
+    "candidate_reference_eligible_rate_min": 0.7,
+    "controlled_attack_eligible_rate_min": 0.7,
+    "raw_clear_wifi_identifiers": false,
+    "ssid_hash_canonical_text_contract": "utf8 decode with replacement before SHA-256, shared collection/runtime",
+    "incremental_import_idempotent": true
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "phase": 4,
+  "step": 23,
+  "protocol_version": "1.0.0",
+  "name": "desktop_candidate_v1_final_fixed_artifact_evaluation",
+  "status": "implemented_not_executed_on_real_data",
+  "inputs": {
+    "scaler": "frozen train-only StandardScaler",
+    "model": "frozen OneClassSVM",
+    "threshold": "frozen P95 normal-validation threshold",
+    "normal": "independent test_normal split",
+    "attack": "real controlled attack eligible features only"
+  },
+  "forbidden_operations": [
+    "scaler.fit",
+    "scaler.partial_fit",
+    "model.fit",
+    "threshold recalibration",
+    "hyperparameter tuning",
+    "normal reference update"
+  ],
+  "metrics": [
+    "accuracy",
+    "precision",
+    "recall",
+    "F1",
+    "ROC-AUC",
+    "PR-AUC",
+    "FPR",
+    "FNR",
+    "confusion matrix",
+    "test-normal FPR",
+    "attack recall",
+    "recall by attack type",
+    "recall by attack session",
+    "model-only inference time",
+    "attack eligible coverage"
+  ],
+  "reporting_caution": "End-to-end detection latency must be measured separately from model-only inference time because Native Wi-Fi scanning dominates wall-clock latency.",
+  "real_execution": false
+}

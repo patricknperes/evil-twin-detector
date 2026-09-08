@@ -1,0 +1,69 @@
+{
+  "schema_version": "desktop_artifact_lineage_v1",
+  "phase": 4,
+  "step": 45,
+  "feature_set_name": "desktop_candidate_v1",
+  "features": [
+    "ssid_bssid_count",
+    "bssid_changed",
+    "security_changed",
+    "security_strength_delta"
+  ],
+  "scientific_identity": [
+    "split_digest",
+    "scientific_freeze_sha256",
+    "reference_file_sha256"
+  ],
+  "scaled_artifact_lineage": {
+    "file": "data/processed/ml_ready/desktop_candidate_v1_scaled/artifact_lineage.json",
+    "binds": [
+      "StandardScaler binary SHA-256",
+      "StandardScaler metadata SHA-256",
+      "model_train X/y/metadata SHA-256",
+      "validation X/y/metadata SHA-256",
+      "test_normal X/y/metadata SHA-256"
+    ],
+    "training_requires_valid_lineage": true
+  },
+  "threshold": {
+    "schema_version": "desktop_threshold_v2",
+    "calibration": "P95 validation normal only",
+    "attack_used_for_calibration": false,
+    "binds": [
+      "split_digest",
+      "scientific_freeze_sha256",
+      "reference_file_sha256",
+      "scaler_file_sha256",
+      "model_file_sha256",
+      "artifact_lineage_file_sha256"
+    ],
+    "self_sha256_inside_file": false
+  },
+  "runtime": {
+    "files": [
+      "desktop_normal_reference.json",
+      "desktop_candidate_v1_standard_scaler.joblib",
+      "one_class_svm_desktop_candidate_v1.joblib",
+      "threshold.json"
+    ],
+    "exact_four_runtime_artifacts_preserved": true,
+    "model_status_requires_integrity": true,
+    "inference_rejects_mixed_artifacts": true
+  },
+  "attack_evaluation": {
+    "attack_feature_manifest_records_reference_identity": true,
+    "final_evaluation_requires_attack_manifest": true,
+    "final_evaluation_requires_same_reference_identity": true
+  },
+  "current_state": {
+    "real_reference": false,
+    "real_scaler": false,
+    "real_model": false,
+    "real_threshold": false,
+    "lineage_materialized": false,
+    "status": "blocked_no_real_sessions"
+  },
+  "ml_preparation_schema": "desktop_candidate_v1_ml_preparation_v2",
+  "ocsvm_training_schema": "desktop_ocsvm_training_v2",
+  "attack_feature_preparation_schema": "desktop_attack_feature_preparation_v3"
+}
