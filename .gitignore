@@ -75,3 +75,7 @@ ml/models/desktop_candidate_v1/ocsvm_v1/*
 ml/models/preprocessing/*
 !ml/models/preprocessing/desktop_candidate_v1_standard_scaler.joblib
 !ml/models/preprocessing/desktop_candidate_v1_standard_scaler.json
+
+# Electron application icon
+!frontend/resources/build/
+!frontend/resources/build/icon.ico
