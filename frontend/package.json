@@ -83,7 +83,8 @@
         }
       ],
       "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",
-      "executableName": "EvilTwinDetector"
+      "executableName": "EvilTwinDetector",
+      "icon": "resources/build/icon.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -94,7 +95,9 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Evil Twin Detector",
       "deleteAppDataOnUninstall": false,
-      "runAfterFinish": true
+      "runAfterFinish": true,
+      "installerIcon": "resources/build/icon.ico",
+      "uninstallerIcon": "resources/build/icon.ico"
     }
   }
 }
